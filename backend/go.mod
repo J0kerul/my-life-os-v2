@@ -1,4 +1,4 @@
-module github.com/J0kerul/mylifeos-v2
+module github.com/J0kerul/my-life-os-v2
 
 go 1.25.5
 
