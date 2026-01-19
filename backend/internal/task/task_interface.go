@@ -13,7 +13,7 @@ type TaskFilter struct {
 	Completed *bool
 }
 
-type TaskRepository interface {
+type TaskRepositoryInterface interface {
 	CreateTask(ctx context.Context, task *Task) error
 	UpdateTask(ctx context.Context, task *Task) error
 	GetTaskById(ctx context.Context, taskid uuid.UUID) (*Task, error)
@@ -25,7 +25,7 @@ type TaskRepository interface {
 	ToggleStatus(ctx context.Context, taskid uuid.UUID) error
 }
 
-type TaskService interface {
+type TaskServiceInterface interface {
 	CreateTask(ctx context.Context, task *Task) error
 	UpdateTask(ctx context.Context, task *Task) error
 	GetTaskById(ctx context.Context, taskid uuid.UUID) (*Task, error)
