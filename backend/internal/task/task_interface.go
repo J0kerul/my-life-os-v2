@@ -6,13 +6,6 @@ import (
 	"github.com/google/uuid"
 )
 
-type TaskFilter struct {
-	Priority  *Priority
-	Domain    *Domain
-	IsBacklog *bool
-	Completed *bool
-}
-
 type TaskRepositoryInterface interface {
 	Create(ctx context.Context, task *Task) error
 	Update(ctx context.Context, task *Task) error

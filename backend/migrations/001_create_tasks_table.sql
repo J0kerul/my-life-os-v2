@@ -22,7 +22,6 @@ CREATE TABLE tasks (
     domain domain_enum NOT NULL,
     project_id UUID,
     uni_module_id UUID,
-    event_id UUID,
     deadline TIMESTAMPTZ,
     is_backlog BOOLEAN NOT NULL DEFAULT FALSE,
     completed BOOLEAN NOT NULL DEFAULT FALSE,
