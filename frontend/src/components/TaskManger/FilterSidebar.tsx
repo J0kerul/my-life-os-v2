@@ -33,7 +33,7 @@ export function FilterSidebar({
   setSortBy,
 }: FilterSidebarProps) {
   return (
-    <div className="border-r pr-6">
+    <div>
       <h2 className="text-lg font-semibold mb-6">Filters</h2>
 
       {/* Domain Filter - Buttons mit Icons */}

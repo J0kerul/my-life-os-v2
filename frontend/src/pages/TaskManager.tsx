@@ -3,6 +3,9 @@ import { FilterSidebar } from "../components/TaskManger/FilterSidebar";
 import { TaskCard } from "../components/TaskManger/TaskCard";
 import { StatsPanel } from "../components/TaskManger/StatsPanel";
 import { TaskDetailView } from "../components/TaskManger/TaskDetailView";
+import { TodaysSchedule } from "../components/TaskManger/TodaysSchedule";
+import { TaskManagerHeader } from "../components/TaskManger/TaskManagerHeader";
+import { Card } from "@/components/ui/card";
 import { ALL_DOMAINS } from "../constants";
 import type { Task } from "../types";
 
@@ -207,7 +210,6 @@ function TaskManager() {
     return true;
   });
 
-  // Priority sort helper
   const priorityValue = (priority: string) => {
     switch (priority) {
       case "high":
@@ -221,29 +223,23 @@ function TaskManager() {
     }
   };
 
-  // Deadline Tasks Sorting
   const deadlineTasks = filteredTasks
     .filter((task) => !task.isBacklog)
     .sort((a, b) => {
       if (sortBy === "priority") {
-        // Sort by priority (high > medium > low)
         return priorityValue(b.priority) - priorityValue(a.priority);
       } else {
-        // Default: Sort by deadline (closest first)
         if (!a.deadline || !b.deadline) return 0;
         return a.deadline.localeCompare(b.deadline);
       }
     });
 
-  // Backlog Tasks Sorting
   const backlogTasks = filteredTasks
     .filter((task) => task.isBacklog)
     .sort((a, b) => {
       if (sortBy === "priority") {
-        // Sort by priority (high > medium > low)
         return priorityValue(b.priority) - priorityValue(a.priority);
       } else {
-        // Default: Sort by created_at (newest first)
         return b.createdAt.localeCompare(a.createdAt);
       }
     });
@@ -268,12 +264,14 @@ function TaskManager() {
     : null;
 
   return (
-    <div className="p-8 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Task Manager</h1>
+    <div className="min-h-screen bg-background p-6">
+      {/* Header */}
+      <TaskManagerHeader />
 
-      <div className="grid grid-cols-[220px_0.8fr_0.8fr_400px] gap-6 items-start">
-        {/* ============ FILTER SIDEBAR (LINKS) ============ */}
-        <div className="sticky top-0 max-h-screen overflow-y-auto">
+      {/* 3 BOXEN NEBENEINANDER - weniger links, mehr rechts */}
+      <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] pl-32 pr-32">
+        {/* ============ BOX 1: FILTER (LINKS) ============ */}
+        <Card className="rounded-r-none p-6">
           <FilterSidebar
             completedFilter={completedFilter}
             setCompletedFilter={setCompletedFilter}
@@ -284,64 +282,61 @@ function TaskManager() {
             sortBy={sortBy}
             setSortBy={setSortBy}
           />
-        </div>
+        </Card>
 
-        {/* ============ DEADLINE TASKS (MITTE LINKS) ============ */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4 sticky top-0 bg-background z-10 pb-2">
-            Deadline Tasks
-          </h2>
-          <div className="space-y-3">
-            {deadlineTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                isSelected={selectedTaskId === task.id}
-                onToggle={toggleTask}
-                onSelect={setSelectedTaskId}
-              />
-            ))}
-          </div>
-        </div>
+        {/* ============ BOX 2: TASKS (MITTE) ============ */}
+        <Card className="rounded-none bg-muted/30 p-6">
+          <div className="grid grid-cols-2 gap-6 h-full">
+            {/* DEADLINE TASKS */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Deadline Tasks</h2>
+              <div className="space-y-3">
+                {deadlineTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    isSelected={selectedTaskId === task.id}
+                    onToggle={toggleTask}
+                    onSelect={setSelectedTaskId}
+                  />
+                ))}
+              </div>
+            </div>
 
-        {/* ============ BACKLOG TASKS (MITTE RECHTS) ============ */}
-        <div>
-          <h2 className="text-xl font-semibold mb-4 sticky top-0 bg-background z-10 pb-2">
-            Backlog
-          </h2>
-          <div className="space-y-3">
-            {backlogTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                isSelected={selectedTaskId === task.id}
-                onToggle={toggleTask}
-                onSelect={setSelectedTaskId}
-              />
-            ))}
-          </div>
-        </div>
-
-        {/* ============ RIGHT PANEL (RECHTS) ============ */}
-        <div className="sticky top-0 max-h-screen overflow-y-auto border-l pl-6 space-y-6">
-          {/* Domain Stats */}
-          <StatsPanel stats={domainStats} />
-
-          {/* Task Detail View */}
-          <TaskDetailView task={selectedTask} />
-
-          {/* Today's Schedule Placeholder */}
-          <div>
-            <h2 className="text-lg font-semibold mb-4">Today's Schedule</h2>
-            <div className="p-6 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300 text-center">
-              <p className="text-sm text-gray-500 mb-2">
-                📅 Schedule Integration
-              </p>
-              <p className="text-xs text-gray-400 italic">
-                Coming soon when Schedule module is ready
-              </p>
+            {/* BACKLOG TASKS */}
+            <div>
+              <h2 className="text-xl font-semibold mb-4">Backlog</h2>
+              <div className="space-y-3">
+                {backlogTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    isSelected={selectedTaskId === task.id}
+                    onToggle={toggleTask}
+                    onSelect={setSelectedTaskId}
+                  />
+                ))}
+              </div>
             </div>
           </div>
+        </Card>
+
+        {/* ============ RECHTE SPALTE: 3 BOXEN ÜBEREINANDER ============ */}
+        <div className="flex flex-col gap-0">
+          {/* Domain Stats Box */}
+          <Card className="rounded-l-none rounded-b-none p-6 flex-1">
+            <StatsPanel stats={domainStats} />
+          </Card>
+
+          {/* Task Detail View Box */}
+          <Card className="rounded-none p-6 flex-1">
+            <TaskDetailView task={selectedTask} />
+          </Card>
+
+          {/* Today's Schedule Box */}
+          <Card className="rounded-l-none rounded-t-none p-6 flex-1">
+            <TodaysSchedule />
+          </Card>
         </div>
       </div>
     </div>
