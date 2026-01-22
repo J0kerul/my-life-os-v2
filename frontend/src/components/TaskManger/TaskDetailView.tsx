@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { DOMAIN_COLORS, DOMAIN_ICONS, ALL_DOMAINS } from "@/constants";
 import {
   Briefcase,
@@ -12,6 +11,7 @@ import {
 } from "lucide-react";
 import type { Task } from "@/types";
 import { useState } from "react";
+import { Card } from "@/components/ui/card";
 
 type TaskDetailViewProps = {
   task: Task | null;
@@ -48,11 +48,11 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
     return (
       <div>
         <h2 className="text-lg font-semibold mb-4">Task Details</h2>
-        <Card className="p-6 text-center">
+        <div className="text-center py-8">
           <p className="text-sm text-muted-foreground italic">
             Select a task to view details
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -102,23 +102,26 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
           <div className="flex items-center gap-2">
             <button
               onClick={handleStartEdit}
-              className="p-2 hover:bg-muted rounded-md transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted transition-colors"
               title="Edit task"
             >
               <Edit className="w-4 h-4" />
+              Edit
             </button>
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="p-2 hover:bg-destructive/10 text-destructive rounded-md transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-destructive/50 text-destructive rounded-md hover:bg-destructive/10 transition-colors"
               title="Delete task"
             >
               <Trash2 className="w-4 h-4" />
+              Delete
             </button>
           </div>
         )}
       </div>
 
-      <Card className="p-5 space-y-4">
+      {/* Content - ohne extra Card border */}
+      <div className="space-y-4">
         {/* VIEW MODE */}
         {!isEditing ? (
           <>
@@ -140,9 +143,9 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
               )}
             </div>
 
-            {/* Description */}
+            {/* Description - MIT SCROLL LIMIT */}
             {task.description && (
-              <div>
+              <div className="max-h-32 overflow-y-auto">
                 <p className="text-sm text-muted-foreground">
                   {task.description}
                 </p>
@@ -253,7 +256,7 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
             <div className="flex items-center gap-2 pt-2">
               <button
                 onClick={handleUpdate}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
               >
                 <Save className="w-4 h-4" />
                 Save Changes
@@ -261,6 +264,7 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
               <button
                 onClick={() => setIsEditing(false)}
                 className="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors"
+                title="Cancel"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -286,7 +290,7 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
             </Badge>
           </div>
         )}
-      </Card>
+      </div>
 
       {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
@@ -306,7 +310,7 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors"
+                className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors font-medium"
               >
                 Delete
               </button>

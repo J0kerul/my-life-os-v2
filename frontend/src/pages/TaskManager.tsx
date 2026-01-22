@@ -144,6 +144,8 @@ const MOCK_TASKS: Task[] = [
     domain: "home",
     deadline: "2026-01-24",
     isBacklog: false,
+    description:
+      "Living room and kitchen Living room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchen",
     createdAt: "2026-01-21T18:00:00Z",
   },
 ];
