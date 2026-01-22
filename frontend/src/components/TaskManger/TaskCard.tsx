@@ -91,7 +91,7 @@ export function TaskCard({
       onClick={() => onSelect(task.id)}
     >
       <div className="flex items-center gap-3">
-        {/* Checkbox - mit cursor pointer */}
+        {/* Checkbox - with cursor pointer */}
         <Checkbox
           checked={task.completed}
           onCheckedChange={() => onToggle(task.id)}
@@ -114,7 +114,7 @@ export function TaskCard({
           {task.title}
         </p>
 
-        {/* Domain Badge mit Icon */}
+        {/* Domain Badge with Icon */}
         <Badge
           variant="outline"
           className="text-xs capitalize gap-1 mx-3"
@@ -127,7 +127,7 @@ export function TaskCard({
           {task.domain}
         </Badge>
 
-        {/* Deadline - ganz rechts */}
+        {/* Deadline - far right */}
         {deadlineDisplay && (
           <p
             className={`text-xs whitespace-nowrap ml-auto ${

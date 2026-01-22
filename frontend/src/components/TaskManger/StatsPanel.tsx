@@ -25,14 +25,14 @@ export function StatsPanel({ stats }: StatsPanelProps) {
 
       {/* Grid: 2 rows */}
       <div className="grid grid-cols-5 gap-3 mb-3">
-        {/* Erste Reihe: 5 Domains */}
+        {/* First Row: 5 Domains */}
         {allDomainStats.slice(0, 5).map((stat) => {
           const color = DOMAIN_COLORS[stat.domain];
           const Icon = DOMAIN_ICONS[stat.domain];
 
           return (
             <div key={stat.domain} className="flex flex-col items-center gap-2">
-              {/* Outline Kreis mit farbigem Icon */}
+              {/* Outline circle with colored icon */}
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center border-2"
                 style={{ borderColor: color }}
@@ -40,7 +40,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                 <Icon className="w-6 h-6" style={{ color: color }} />
               </div>
 
-              {/* Count darunter - farbig */}
+              {/* Count below - colored */}
               <span className="text-sm font-bold" style={{ color: color }}>
                 {stat.count}
               </span>
@@ -49,7 +49,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
         })}
       </div>
 
-      {/* Zweite Reihe: 6 Domains */}
+      {/* Second Row: 6 Domains */}
       <div className="grid grid-cols-6 gap-3">
         {allDomainStats.slice(5, 11).map((stat) => {
           const color = DOMAIN_COLORS[stat.domain];
@@ -57,7 +57,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
 
           return (
             <div key={stat.domain} className="flex flex-col items-center gap-2">
-              {/* Outline Kreis mit farbigem Icon */}
+              {/* Outline circle with colored icon */}
               <div
                 className="w-12 h-12 rounded-full flex items-center justify-center border-2"
                 style={{ borderColor: color }}
@@ -65,7 +65,7 @@ export function StatsPanel({ stats }: StatsPanelProps) {
                 <Icon className="w-6 h-6" style={{ color: color }} />
               </div>
 
-              {/* Count darunter - farbig */}
+              {/* Count below - colored */}
               <span className="text-sm font-bold" style={{ color: color }}>
                 {stat.count}
               </span>

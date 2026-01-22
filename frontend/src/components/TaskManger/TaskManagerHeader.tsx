@@ -6,8 +6,8 @@ type TaskManagerHeaderProps = {
 };
 
 export function TaskManagerHeader({ tasks }: TaskManagerHeaderProps) {
-  // Berechne Tasks mit Deadline heute
-  const today = new Date("2026-01-22"); // Dein Mock-Datum
+  // calculate tasks due today
+  const today = new Date("2026-01-22"); // Your mock date
   today.setHours(0, 0, 0, 0);
 
   const todaysTasks = tasks.filter((task) => {
@@ -21,7 +21,7 @@ export function TaskManagerHeader({ tasks }: TaskManagerHeaderProps) {
 
   return (
     <div className="flex items-start gap-4 mb-6 pl-32 pr-32">
-      {/* Burger Button - absolut positioniert links außen */}
+      {/* Burger Button - absolutely positioned on the far left */}
       <button
         onClick={() => {
           // TODO: Open sidebar

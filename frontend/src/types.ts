@@ -8,6 +8,6 @@ export type Task = {
   isBacklog: boolean;
   createdAt: string;
   description?: string;
-  project_id?: string;      // NEU!
-  uni_module_id?: string;   // NEU!
+  project_id?: string;
+  uni_module_id?: string;
 };

@@ -281,9 +281,9 @@ function TaskManager() {
       {/* Header */}
       <TaskManagerHeader tasks={tasks} />
 
-      {/* 3 BOXEN NEBENEINANDER */}
+      {/* 3 BOXES SIDE BY SIDE */}
       <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] pl-32 pr-32">
-        {/* ============ BOX 1: FILTER (LINKS) ============ */}
+        {/* ============ BOX 1: FILTER (LEFT) ============ */}
         <Card className="rounded-r-none p-6">
           <FilterSidebar
             completedFilter={completedFilter}
@@ -297,7 +297,7 @@ function TaskManager() {
           />
         </Card>
 
-        {/* ============ BOX 2: TASKS (MITTE) ============ */}
+        {/* ============ BOX 2: TASKS (CENTER) ============ */}
         <Card className="rounded-none bg-muted/30 p-6">
           <div className="grid grid-cols-2 gap-6">
             {/* DEADLINE TASKS */}
@@ -345,7 +345,7 @@ function TaskManager() {
           </div>
         </Card>
 
-        {/* ============ RECHTE SPALTE: 3 BOXEN ÜBEREINANDER ============ */}
+        {/* ============ RIGHT COLUMN: 3 BOXES STACKED ============ */}
         <div className="flex flex-col gap-0">
           {/* Domain Stats Box */}
           <Card className="rounded-l-none rounded-b-none p-6 flex-1">

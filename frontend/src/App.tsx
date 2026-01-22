@@ -6,7 +6,7 @@ import TaskManager from "./pages/TaskManager";
 
 function App() {
   useEffect(() => {
-    // Dark Mode auf <html> setzen
+    // Dark Mode by default
     document.documentElement.classList.add("dark");
   }, []);
 

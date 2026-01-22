@@ -120,12 +120,12 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
         )}
       </div>
 
-      {/* Content - ohne extra Card border */}
+      {/* Content */}
       <div className="space-y-4">
         {/* VIEW MODE */}
         {!isEditing ? (
           <>
-            {/* Title + Deadline/Backlog - selbe Zeile */}
+            {/* Title + Deadline/Backlog - same line */}
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-base font-semibold flex-1">{task.title}</h3>
 
@@ -143,7 +143,7 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
               )}
             </div>
 
-            {/* Description - MIT SCROLL LIMIT */}
+            {/* Description */}
             {task.description && (
               <div className="max-h-32 overflow-y-auto custom-scrollbar">
                 <p className="text-sm text-muted-foreground">
@@ -181,7 +181,7 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
         ) : (
           /* EDIT MODE */
           <>
-            {/* Title - volle Breite */}
+            {/* Title */}
             <div>
               <input
                 type="text"
@@ -191,7 +191,7 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
               />
             </div>
 
-            {/* Backlog Toggle + Date Input - unter dem Titel */}
+            {/* Backlog Toggle + Date Input - below the title */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setEditIsBacklog(!editIsBacklog)}
@@ -272,7 +272,7 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
           </>
         )}
 
-        {/* Projekt/Uni Modul - nur in View Mode */}
+        {/* Project/Uni Module */}
         {!isEditing && task.project_id && (
           <div>
             <Badge variant="secondary" className="text-xs gap-1">
