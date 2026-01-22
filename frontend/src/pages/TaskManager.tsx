@@ -5,6 +5,7 @@ import { StatsPanel } from "../components/TaskManger/StatsPanel";
 import { TaskDetailView } from "../components/TaskManger/TaskDetailView";
 import { TodaysSchedule } from "../components/TaskManger/TodaysSchedule";
 import { TaskManagerHeader } from "../components/TaskManger/TaskManagerHeader";
+import { CreateTaskModal } from "../components/TaskManger/CreateTaskModal";
 import { Card } from "@/components/ui/card";
 import { ALL_DOMAINS } from "../constants";
 import type { Task } from "../types";
@@ -145,8 +146,6 @@ const MOCK_TASKS: Task[] = [
     domain: "home",
     deadline: "2026-01-24",
     isBacklog: false,
-    description:
-      "Living room and kitchen Living room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchenLiving room and kitchen",
     createdAt: "2026-01-21T18:00:00Z",
   },
 ];
@@ -162,6 +161,7 @@ function TaskManager() {
   >("all");
   const [sortBy, setSortBy] = useState<"default" | "priority">("default");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [showCreateModal, setShowCreateModal] = useState(false);
 
   const toggleDomain = (domain: string) => {
     if (selectedDomains.includes(domain)) {
@@ -262,6 +262,16 @@ function TaskManager() {
     );
   };
 
+  const handleCreateTask = (taskData: Omit<Task, "id" | "createdAt">) => {
+    const newTask: Task = {
+      ...taskData,
+      id: Date.now().toString(),
+      createdAt: new Date().toISOString(),
+    };
+    setTasks([...tasks, newTask]);
+    setShowCreateModal(false);
+  };
+
   const selectedTask = selectedTaskId
     ? tasks.find((t) => t.id === selectedTaskId) || null
     : null;
@@ -271,7 +281,7 @@ function TaskManager() {
       {/* Header */}
       <TaskManagerHeader tasks={tasks} />
 
-      {/* 3 BOXEN NEBENEINANDER - weniger links, mehr rechts */}
+      {/* 3 BOXEN NEBENEINANDER */}
       <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] pl-32 pr-32">
         {/* ============ BOX 1: FILTER (LINKS) ============ */}
         <Card className="rounded-r-none p-6">
@@ -313,10 +323,7 @@ function TaskManager() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold">Backlog</h2>
                 <button
-                  onClick={() => {
-                    // TODO: Open create task modal
-                    console.log("Create task");
-                  }}
+                  onClick={() => setShowCreateModal(true)}
                   className="flex items-center gap-1.5 px-2 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 font-medium whitespace-nowrap"
                 >
                   <Plus className="w-3.5 h-3.5" />
@@ -356,6 +363,13 @@ function TaskManager() {
           </Card>
         </div>
       </div>
+
+      {/* Create Task Modal */}
+      <CreateTaskModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreateTask={handleCreateTask}
+      />
     </div>
   );
 }
