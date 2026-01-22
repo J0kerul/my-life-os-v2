@@ -1,13 +1,14 @@
 export type Task = {
   id: string;
   title: string;
-  completed: boolean;
+  description?: string;
   priority: "low" | "medium" | "high";
   domain: string;
+  projectId?: string;
+  uniModuleId?: string;
   deadline?: string;
   isBacklog: boolean;
+  completed: boolean;
   createdAt: string;
-  description?: string;
-  project_id?: string;
-  uni_module_id?: string;
+  updatedAt: string;
 };

@@ -1,11 +1,11 @@
-// src/services/taskService.ts
 import type { Task } from "@/types";
+import { taskMapper, type ApiTask } from "./taskMapper";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 // Request Types
-export type CreateTaskRequest = Omit<Task, "id" | "createdAt">;
-export type UpdateTaskRequest = Partial<Omit<Task, "id" | "createdAt">>;
+export type CreateTaskRequest = Omit<Task, "id" | "createdAt" | "updatedAt">;
+export type UpdateTaskRequest = Partial<Omit<Task, "id" | "createdAt" | "updatedAt">>;
 
 class TaskService {
   private async fetch<T>(
@@ -16,8 +16,6 @@ class TaskService {
       ...options,
       headers: {
         "Content-Type": "application/json",
-        // TODO: Add auth token here later
-        // "Authorization": `Bearer ${token}`,
         ...options?.headers,
       },
     });
@@ -32,23 +30,28 @@ class TaskService {
 
   // GET /tasks - Alle Tasks holen
   async getAllTasks(): Promise<Task[]> {
-    return this.fetch<Task[]>("/tasks");
+    const apiTasks = await this.fetch<ApiTask[]>("/tasks");
+    return apiTasks.map(taskMapper.toFrontend);
   }
 
   // POST /tasks - Task erstellen
   async createTask(task: CreateTaskRequest): Promise<Task> {
-    return this.fetch<Task>("/tasks", {
+    const apiTaskData = taskMapper.toApi(task);
+    const apiTask = await this.fetch<ApiTask>("/tasks", {
       method: "POST",
-      body: JSON.stringify(task),
+      body: JSON.stringify(apiTaskData),
     });
+    return taskMapper.toFrontend(apiTask);
   }
 
   // PUT /tasks/:id - Task updaten
   async updateTask(id: string, updates: UpdateTaskRequest): Promise<Task> {
-    return this.fetch<Task>(`/tasks/${id}`, {
+    const apiUpdates = taskMapper.toApi(updates);
+    const apiTask = await this.fetch<ApiTask>(`/tasks/${id}`, {
       method: "PUT",
-      body: JSON.stringify(updates),
+      body: JSON.stringify(apiUpdates),
     });
+    return taskMapper.toFrontend(apiTask);
   }
 
   // DELETE /tasks/:id - Task löschen
@@ -60,9 +63,10 @@ class TaskService {
 
   // PATCH /tasks/:id/toggle - Completion toggle
   async toggleTaskCompletion(id: string): Promise<Task> {
-    return this.fetch<Task>(`/tasks/${id}/toggle`, {
+    const apiTask = await this.fetch<ApiTask>(`/tasks/${id}/toggle`, {
       method: "PATCH",
     });
+    return taskMapper.toFrontend(apiTask);
   }
 }
 

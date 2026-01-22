@@ -273,20 +273,20 @@ export function TaskDetailView({ task }: TaskDetailViewProps) {
         )}
 
         {/* Project/Uni Module */}
-        {!isEditing && task.project_id && (
+        {!isEditing && task.projectId && (
           <div>
             <Badge variant="secondary" className="text-xs gap-1">
               <FolderKanban className="w-3 h-3" />
-              Project: {task.project_id}
+              Project: {task.projectId}
             </Badge>
           </div>
         )}
 
-        {!isEditing && task.uni_module_id && (
+        {!isEditing && task.uniModuleId && (
           <div>
             <Badge variant="secondary" className="text-xs gap-1">
               <GraduationCap className="w-3 h-3" />
-              Module: {task.uni_module_id}
+              Module: {task.uniModuleId}
             </Badge>
           </div>
         )}

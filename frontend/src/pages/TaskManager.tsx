@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FilterSidebar } from "../components/TaskManger/FilterSidebar";
 import { TaskCard } from "../components/TaskManger/TaskCard";
 import { StatsPanel } from "../components/TaskManger/StatsPanel";
@@ -10,148 +10,12 @@ import { Card } from "@/components/ui/card";
 import { ALL_DOMAINS } from "../constants";
 import type { Task } from "../types";
 import { Plus } from "lucide-react";
-
-const MOCK_TASKS: Task[] = [
-  {
-    id: "1",
-    title: "Buy milk",
-    completed: false,
-    priority: "high",
-    domain: "personal",
-    deadline: "2026-01-22",
-    isBacklog: false,
-    createdAt: "2026-01-20T10:00:00Z",
-  },
-  {
-    id: "2",
-    title: "Finish homework",
-    completed: true,
-    priority: "medium",
-    domain: "university",
-    deadline: "2026-01-21",
-    isBacklog: false,
-    createdAt: "2026-01-19T14:30:00Z",
-  },
-  {
-    id: "3",
-    title: "Build MyLifeOS",
-    completed: false,
-    priority: "high",
-    domain: "coding",
-    isBacklog: true,
-    createdAt: "2026-01-22T09:15:00Z",
-  },
-  {
-    id: "4",
-    title: "Prepare presentation",
-    completed: false,
-    priority: "high",
-    domain: "university",
-    deadline: "2026-01-24",
-    isBacklog: false,
-    createdAt: "2026-01-18T16:45:00Z",
-  },
-  {
-    id: "5",
-    title: "Call dentist",
-    completed: false,
-    priority: "low",
-    domain: "health",
-    deadline: "2026-01-28",
-    isBacklog: false,
-    createdAt: "2026-01-21T11:20:00Z",
-  },
-  {
-    id: "6",
-    title: "Review Pull Request",
-    completed: false,
-    priority: "medium",
-    domain: "work",
-    deadline: "2026-01-22",
-    isBacklog: false,
-    createdAt: "2026-01-22T08:00:00Z",
-  },
-  {
-    id: "7",
-    title: "Learn Rust",
-    completed: false,
-    priority: "low",
-    domain: "coding",
-    isBacklog: true,
-    createdAt: "2026-01-15T13:30:00Z",
-  },
-  {
-    id: "8",
-    title: "Fix bug in auth system",
-    completed: false,
-    priority: "high",
-    domain: "work",
-    deadline: "2026-01-25",
-    isBacklog: false,
-    createdAt: "2026-01-21T15:00:00Z",
-  },
-  {
-    id: "9",
-    title: 'Read "Clean Code"',
-    completed: false,
-    priority: "medium",
-    domain: "study",
-    isBacklog: true,
-    createdAt: "2026-01-20T12:00:00Z",
-  },
-  {
-    id: "10",
-    title: "Budget review",
-    completed: false,
-    priority: "medium",
-    domain: "finance",
-    deadline: "2026-01-26",
-    isBacklog: false,
-    createdAt: "2026-01-19T10:30:00Z",
-  },
-  {
-    id: "11",
-    title: "Setup Docker registry",
-    completed: false,
-    priority: "high",
-    domain: "administration",
-    isBacklog: true,
-    createdAt: "2026-01-21T14:00:00Z",
-  },
-  {
-    id: "12",
-    title: "Plan Berlin trip",
-    completed: false,
-    priority: "low",
-    domain: "travel",
-    deadline: "2026-02-01",
-    isBacklog: false,
-    createdAt: "2026-01-20T09:00:00Z",
-  },
-  {
-    id: "13",
-    title: "Dinner with friends",
-    completed: false,
-    priority: "medium",
-    domain: "social",
-    deadline: "2026-01-23",
-    isBacklog: false,
-    createdAt: "2026-01-22T07:30:00Z",
-  },
-  {
-    id: "14",
-    title: "Clean apartment",
-    completed: false,
-    priority: "low",
-    domain: "home",
-    deadline: "2026-01-24",
-    isBacklog: false,
-    createdAt: "2026-01-21T18:00:00Z",
-  },
-];
+import { taskService } from "../services/taskService";
 
 function TaskManager() {
-  const [tasks, setTasks] = useState<Task[]>(MOCK_TASKS);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [completedFilter, setCompletedFilter] = useState<
     "all" | "finished" | "unfinished"
   >("all");
@@ -162,6 +26,25 @@ function TaskManager() {
   const [sortBy, setSortBy] = useState<"default" | "priority">("default");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+
+  // Load tasks on mount
+  useEffect(() => {
+    loadTasks();
+  }, []);
+
+  const loadTasks = async () => {
+    try {
+      setLoading(true);
+      const fetchedTasks = await taskService.getAllTasks();
+      setTasks(fetchedTasks);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load tasks");
+      console.error("Error loading tasks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const toggleDomain = (domain: string) => {
     if (selectedDomains.includes(domain)) {
@@ -177,7 +60,7 @@ function TaskManager() {
   ): boolean => {
     if (!deadline || range === "all") return true;
 
-    const today = new Date("2026-01-22");
+    const today = new Date();
     const taskDate = new Date(deadline);
 
     today.setHours(0, 0, 0, 0);
@@ -254,36 +137,65 @@ function TaskManager() {
     return { domain, count };
   }).filter((stat) => stat.count > 0);
 
-  const toggleTask = (id: string) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task,
-      ),
-    );
+  const toggleTask = async (id: string) => {
+    try {
+      const updatedTask = await taskService.toggleTaskCompletion(id);
+      setTasks(tasks.map((task) => (task.id === id ? updatedTask : task)));
+    } catch (err) {
+      console.error("Error toggling task:", err);
+      alert("Failed to toggle task completion");
+    }
   };
 
-  const handleCreateTask = (taskData: Omit<Task, "id" | "createdAt">) => {
-    const newTask: Task = {
-      ...taskData,
-      id: Date.now().toString(),
-      createdAt: new Date().toISOString(),
-    };
-    setTasks([...tasks, newTask]);
-    setShowCreateModal(false);
+  const handleCreateTask = async (
+    taskData: Omit<Task, "id" | "createdAt" | "updatedAt">,
+  ) => {
+    try {
+      const newTask = await taskService.createTask(taskData);
+      setTasks([...tasks, newTask]);
+      setShowCreateModal(false);
+    } catch (err) {
+      console.error("Error creating task:", err);
+      alert("Failed to create task");
+    }
   };
 
   const selectedTask = selectedTaskId
     ? tasks.find((t) => t.id === selectedTaskId) || null
     : null;
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <p className="text-lg">Loading tasks...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background p-6 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-lg text-destructive mb-4">Error: {error}</p>
+          <button
+            onClick={loadTasks}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background p-6">
       {/* Header */}
       <TaskManagerHeader tasks={tasks} />
 
-      {/* 3 BOXES SIDE BY SIDE */}
+      {/* 3 BOXEN NEBENEINANDER */}
       <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] pl-32 pr-32">
-        {/* ============ BOX 1: FILTER (LEFT) ============ */}
+        {/* ============ BOX 1: FILTER (LINKS) ============ */}
         <Card className="rounded-r-none p-6">
           <FilterSidebar
             completedFilter={completedFilter}
@@ -297,7 +209,7 @@ function TaskManager() {
           />
         </Card>
 
-        {/* ============ BOX 2: TASKS (CENTER) ============ */}
+        {/* ============ BOX 2: TASKS (MITTE) ============ */}
         <Card className="rounded-none bg-muted/30 p-6">
           <div className="grid grid-cols-2 gap-6">
             {/* DEADLINE TASKS */}
@@ -345,7 +257,7 @@ function TaskManager() {
           </div>
         </Card>
 
-        {/* ============ RIGHT COLUMN: 3 BOXES STACKED ============ */}
+        {/* ============ RECHTE SPALTE: 3 BOXEN ÜBEREINANDER ============ */}
         <div className="flex flex-col gap-0">
           {/* Domain Stats Box */}
           <Card className="rounded-l-none rounded-b-none p-6 flex-1">
