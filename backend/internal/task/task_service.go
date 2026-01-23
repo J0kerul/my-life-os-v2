@@ -2,18 +2,19 @@ package task
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
+	errorutils "github.com/J0kerul/my-life-os-v2/pkg/errors"
 	"github.com/google/uuid"
 )
 
 type TaskService struct {
-	TaskRepo TaskRepo
+	repo TaskRepo
 }
 
-func NewTaskService(TaskRepository TaskRepo) *TaskService {
+func NewTaskService(repo TaskRepo) *TaskService {
 	return &TaskService{
-		TaskRepo: TaskRepository,
+		repo: repo,
 	}
 }
 
@@ -25,9 +26,9 @@ func (s *TaskService) CreateTask(ctx context.Context, task *Task) error {
 	}
 
 	// Create Task
-	err = s.TaskRepo.Create(ctx, task)
+	err = s.repo.Create(ctx, task)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to create task: %w", err)
 	}
 
 	return nil
@@ -40,9 +41,9 @@ func (s *TaskService) UpdateTask(ctx context.Context, task *Task) error {
 		return err
 	}
 	// Update Task
-	err = s.TaskRepo.Update(ctx, task)
+	err = s.repo.Update(ctx, task)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to update task: %w", err)
 	}
 
 	return nil
@@ -51,31 +52,36 @@ func (s *TaskService) UpdateTask(ctx context.Context, task *Task) error {
 func (s *TaskService) GetTaskById(ctx context.Context, taskid uuid.UUID) (*Task, error) {
 	// Check if id isn't empty
 	if taskid == uuid.Nil {
-		return nil, errors.New("task id cannot be nil")
+		return nil, errorutils.ErrMissingId
 	}
 	// Check if id exists and get it
-	task, err := s.TaskRepo.GetById(ctx, taskid)
+	task, err := s.repo.GetById(ctx, taskid)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get task by id: %w", err)
 	}
 
 	return task, nil
 }
 
 func (s *TaskService) GetAllTasks(ctx context.Context) ([]*Task, error) {
-	return s.TaskRepo.GetAll(ctx)
+	tasks, err := s.repo.GetAll(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get all tasks: %w", err)
+	}
+
+	return tasks, nil
 }
 
 func (s *TaskService) DeleteTask(ctx context.Context, taskid uuid.UUID) error {
 	// Check if id isn't empty
 	if taskid == uuid.Nil {
-		return errors.New("task id cannot be nil")
+		return errorutils.ErrMissingId
 	}
 
 	// Delete id
-	err := s.TaskRepo.Delete(ctx, taskid)
+	err := s.repo.Delete(ctx, taskid)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to delete task: %w", err)
 	}
 
 	return nil
@@ -84,12 +90,12 @@ func (s *TaskService) DeleteTask(ctx context.Context, taskid uuid.UUID) error {
 func (s *TaskService) ToggleStatus(ctx context.Context, taskid uuid.UUID) error {
 	// Check if id isn't empty
 	if taskid == uuid.Nil {
-		return errors.New("task id cannot be nil")
+		return errorutils.ErrMissingId
 	}
 
-	err := s.TaskRepo.ToggleStatus(ctx, taskid)
+	err := s.repo.ToggleStatus(ctx, taskid)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to toggle task status: %w", err)
 	}
 
 	return nil
@@ -98,27 +104,27 @@ func (s *TaskService) ToggleStatus(ctx context.Context, taskid uuid.UUID) error 
 func checkFields(task Task) error {
 	// Check title
 	if task.Title == "" {
-		return errors.New("task title shouldn't be empty")
+		return errorutils.ErrTitleRequired
 	}
 
 	// Check Priority Validation
 	if !isPrioValid(task.Priority) {
-		return errors.New("task Priority should be 'high', 'medium' or 'low")
+		return errorutils.ErrInvalidPriority
 	}
 
 	// Check Domain Validation
 	if !isDomainValid(task.Domain) {
-		return errors.New("task Domain should be one of the following: 'work', 'university', 'personal', 'coding', 'health', 'finance', 'social', 'home', 'study', 'travel' or 'administration'")
+		return errorutils.ErrInvalidDomain
 	}
 
 	// Check if deadline exists if task is not marked as backlog
 	if task.Deadline == nil && !task.IsBacklog {
-		return errors.New("non Backlog Task has to have a deadline")
+		return errorutils.ErrNoDeadlineForNonBacklog
 	}
 
 	// Check the other way around
 	if task.IsBacklog && task.Deadline != nil {
-		return errors.New("backlog task should not have a deadline")
+		return errorutils.ErrBacklogDeadlineConflict
 
 	}
 
