@@ -8,6 +8,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { ALL_DOMAINS, DOMAIN_COLORS, DOMAIN_ICONS } from "../../constants";
+import { RotateCcw } from "lucide-react";
 
 type FilterSidebarProps = {
   completedFilter: "all" | "finished" | "unfinished";
@@ -20,6 +21,7 @@ type FilterSidebarProps = {
   ) => void;
   sortBy: "default" | "priority";
   setSortBy: (value: "default" | "priority") => void;
+  onResetFilters: () => void;
 };
 
 export function FilterSidebar({
@@ -31,10 +33,22 @@ export function FilterSidebar({
   setDeadlineFilter,
   sortBy,
   setSortBy,
+  onResetFilters,
 }: FilterSidebarProps) {
   return (
     <div>
-      <h2 className="text-lg font-semibold mb-6">Filters</h2>
+      {/* Header mit Reset Button */}
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-semibold">Filters</h2>
+        <button
+          onClick={onResetFilters}
+          className="flex items-center gap-1.5 px-2 py-1 text-xs border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
+          title="Reset all filters"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Reset
+        </button>
+      </div>
 
       {/* Domain Filter - Buttons mit Icons */}
       <div className="mb-6">
