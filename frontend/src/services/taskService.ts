@@ -1,12 +1,9 @@
-// src/services/taskService.ts
 import type { Task } from "@/types";
 import { taskMapper, type ApiTask } from "./taskMapper";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 export type CreateTaskRequest = Omit<Task, "id" | "createdAt" | "updatedAt">;
-
-// ← RICHTIGER FIX: deadline aus Omit rausnehmen!
 export type UpdateTaskRequest = Partial<Omit<Task, "id" | "createdAt" | "updatedAt" | "deadline">> & {
   deadline?: string | null;
 };
@@ -27,6 +24,11 @@ class TaskService {
     if (!response.ok) {
       const error = await response.text();
       throw new Error(error || `API Error: ${response.status}`);
+    }
+
+    // ← FIX: Leere Responses (wie DELETE 204) nicht parsen!
+    if (response.status === 204 || response.headers.get("content-length") === "0") {
+      return undefined as T;
     }
 
     return response.json();
@@ -61,7 +63,7 @@ class TaskService {
   }
 
   async deleteTask(id: string): Promise<void> {
-    return this.fetch<void>(`/tasks/${id}`, {
+    await this.fetch<void>(`/tasks/${id}`, {
       method: "DELETE",
     });
   }
