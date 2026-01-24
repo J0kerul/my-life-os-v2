@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	errorutils "github.com/J0kerul/my-life-os-v2/pkg/errors"
-	"github.com/J0kerul/my-life-os-v2/pkg/utils"
+	errorutils "github.com/J0kerul/jokers-hub/pkg/errors"
+	"github.com/J0kerul/jokers-hub/pkg/utils"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 )

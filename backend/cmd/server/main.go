@@ -15,7 +15,7 @@ import (
 	"github.com/go-chi/cors"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/J0kerul/my-life-os-v2/internal/task"
+	"github.com/J0kerul/jokers-hub/internal/task"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	errorutils "github.com/J0kerul/my-life-os-v2/pkg/errors"
+	errorutils "github.com/J0kerul/jokers-hub/pkg/errors"
 	"github.com/google/uuid"
 )
 

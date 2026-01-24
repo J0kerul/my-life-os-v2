@@ -1,4 +1,4 @@
-module github.com/J0kerul/my-life-os-v2
+module github.com/J0kerul/jokers-hub
 
 go 1.25.5
 

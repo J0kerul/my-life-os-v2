@@ -3,7 +3,7 @@ package database
 import (
 	"context"
 
-	"github.com/J0kerul/my-life-os-v2/internal/config"
+	"github.com/J0kerul/jokers-hub/internal/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
