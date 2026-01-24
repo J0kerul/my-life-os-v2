@@ -2,6 +2,7 @@ package task
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -12,22 +13,23 @@ import (
 )
 
 type CreateTaskRequest struct {
-	Title       string     `json:"title"`
-	Description *string    `json:"description,omitempty"`
-	Priority    Priority   `json:"priority"`
-	Domain      Domain     `json:"domain"`
-	Deadline    *time.Time `json:"deadline,omitempty"`
-	IsBacklog   bool       `json:"is_backlog"`
+	Title       string   `json:"title"`
+	Description *string  `json:"description,omitempty"`
+	Priority    Priority `json:"priority"`
+	Domain      Domain   `json:"domain"`
+	Deadline    *string  `json:"deadline,omitempty"`
+	IsBacklog   bool     `json:"is_backlog"`
+	Completed   bool     `json:"completed"`
 }
 
 type UpdateTaskRequest struct {
-	Title       *string    `json:"title,omitempty"`
-	Description *string    `json:"description,omitempty"`
-	Priority    *Priority  `json:"priority,omitempty"`
-	Domain      *Domain    `json:"domain,omitempty"`
-	Deadline    *time.Time `json:"deadline,omitempty"`
-	IsBacklog   *bool      `json:"is_backlog,omitempty"`
-	Completed   *bool      `json:"completed,omitempty"`
+	Title       *string   `json:"title,omitempty"`
+	Description *string   `json:"description,omitempty"`
+	Priority    *Priority `json:"priority,omitempty"`
+	Domain      *Domain   `json:"domain,omitempty"`
+	Deadline    *string   `json:"deadline,omitempty"`
+	IsBacklog   *bool     `json:"is_backlog,omitempty"`
+	Completed   *bool     `json:"completed,omitempty"`
 }
 
 type TaskResponse struct {
@@ -61,32 +63,43 @@ func (h *TaskHandler) createTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 2. DTO → Entity
+	// 2 Parse Deadline if provided
+	var deadline *time.Time
+	if req.Deadline != nil {
+		parsed, err := time.Parse("2006-01-02", *req.Deadline)
+		if err != nil {
+			utils.RespondWithBadRequest(w, "Invalid deadline format")
+			return
+		}
+		deadline = &parsed
+	}
+
+	// 3. DTO → Entity
 	task := &Task{
 		Title:       req.Title,
 		Description: req.Description,
 		Priority:    req.Priority,
 		Domain:      req.Domain,
-		Deadline:    req.Deadline,
+		Deadline:    deadline,
 		IsBacklog:   req.IsBacklog,
 		Completed:   false,
 	}
 
-	// 3. Call Service Layer
+	// 4. Call Service Layer
 	err := h.service.CreateTask(r.Context(), task)
 	if err != nil {
 		if isBusinessError(err) {
 			utils.RespondWithBadRequest(w, err.Error())
 			return
 		}
-		utils.RespondWithInternalError(w, "Failed to create task")
+		utils.RespondWithInternalError(w, fmt.Sprintf("Failed to create task: %v", err))
 		return
 	}
 
-	// 4. Entity → Response DTO
+	// 5. Entity → Response DTO
 	response := taskToResponse(task)
 
-	// 5. Send Response
+	// 6. Send Response
 	utils.RespondWithJSON(w, http.StatusCreated, response)
 }
 
@@ -114,7 +127,18 @@ func (h *TaskHandler) updateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 4. Update Fields
+	// 4. Parse Deadline if provided
+	var deadline *time.Time
+	if req.Deadline != nil {
+		parsed, err := time.Parse("2006-01-02", *req.Deadline)
+		if err != nil {
+			utils.RespondWithBadRequest(w, "Invalid deadline format")
+			return
+		}
+		deadline = &parsed
+	}
+
+	// 5. Update Fields
 	if req.Title != nil {
 		task.Title = *req.Title
 	}
@@ -128,7 +152,7 @@ func (h *TaskHandler) updateTask(w http.ResponseWriter, r *http.Request) {
 		task.Domain = *req.Domain
 	}
 	if req.Deadline != nil {
-		task.Deadline = req.Deadline
+		task.Deadline = deadline
 	}
 	if req.IsBacklog != nil {
 		task.IsBacklog = *req.IsBacklog
@@ -137,7 +161,7 @@ func (h *TaskHandler) updateTask(w http.ResponseWriter, r *http.Request) {
 		task.Completed = *req.Completed
 	}
 
-	// 5. Call Service Layer to Update
+	// 6. Call Service Layer to Update
 	err = h.service.UpdateTask(r.Context(), task)
 	if err != nil {
 		if isBusinessError(err) {
@@ -148,10 +172,10 @@ func (h *TaskHandler) updateTask(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 6. Entity → Response DTO
+	// 7. Entity → Response DTO
 	response := taskToResponse(task)
 
-	// 7. Send Response
+	// 8. Send Response
 	utils.RespondWithJSON(w, http.StatusOK, response)
 }
 
