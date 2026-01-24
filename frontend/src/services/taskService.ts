@@ -5,7 +5,11 @@ import { taskMapper, type ApiTask } from "./taskMapper";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
 export type CreateTaskRequest = Omit<Task, "id" | "createdAt" | "updatedAt">;
-export type UpdateTaskRequest = Partial<Omit<Task, "id" | "createdAt" | "updatedAt">>;
+
+// ← RICHTIGER FIX: deadline aus Omit rausnehmen!
+export type UpdateTaskRequest = Partial<Omit<Task, "id" | "createdAt" | "updatedAt" | "deadline">> & {
+  deadline?: string | null;
+};
 
 class TaskService {
   private async fetch<T>(
@@ -28,19 +32,16 @@ class TaskService {
     return response.json();
   }
 
-  // GET /tasks - Alle Tasks holen
   async getAllTasks(): Promise<Task[]> {
     const apiTasks = await this.fetch<ApiTask[]>("/tasks");
     return apiTasks.map(taskMapper.toFrontend);
   }
 
-  // GET /tasks/:id - Einzelnen Task holen
   async getTaskById(id: string): Promise<Task> {
     const apiTask = await this.fetch<ApiTask>(`/tasks/${id}`);
     return taskMapper.toFrontend(apiTask);
   }
 
-  // POST /tasks - Task erstellen
   async createTask(task: CreateTaskRequest): Promise<Task> {
     const apiTaskData = taskMapper.toApi(task);
     const apiTask = await this.fetch<ApiTask>("/tasks", {
@@ -50,7 +51,6 @@ class TaskService {
     return taskMapper.toFrontend(apiTask);
   }
 
-  // PUT /tasks/:id - Task updaten
   async updateTask(id: string, updates: UpdateTaskRequest): Promise<Task> {
     const apiUpdates = taskMapper.toApi(updates);
     const apiTask = await this.fetch<ApiTask>(`/tasks/${id}`, {
@@ -60,14 +60,12 @@ class TaskService {
     return taskMapper.toFrontend(apiTask);
   }
 
-  // DELETE /tasks/:id - Task löschen
   async deleteTask(id: string): Promise<void> {
     return this.fetch<void>(`/tasks/${id}`, {
       method: "DELETE",
     });
   }
 
-  // PATCH /tasks/:id/toggle - Completion toggle
   async toggleTaskCompletion(id: string): Promise<Task> {
     const apiTask = await this.fetch<ApiTask>(`/tasks/${id}/toggle`, {
       method: "PATCH",

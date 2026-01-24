@@ -151,11 +151,14 @@ func (h *TaskHandler) updateTask(w http.ResponseWriter, r *http.Request) {
 	if req.Domain != nil {
 		task.Domain = *req.Domain
 	}
-	if req.Deadline != nil {
-		task.Deadline = deadline
-	}
 	if req.IsBacklog != nil {
 		task.IsBacklog = *req.IsBacklog
+		if *req.IsBacklog {
+			task.Deadline = nil
+		}
+	}
+	if req.Deadline != nil {
+		task.Deadline = deadline
 	}
 	if req.Completed != nil {
 		task.Completed = *req.Completed
