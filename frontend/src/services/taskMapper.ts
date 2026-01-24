@@ -27,7 +27,9 @@ export const taskMapper = {
       domain: apiTask.domain,
       projectId: apiTask.project_id,
       uniModuleId: apiTask.uni_module_id,
-      deadline: apiTask.deadline,
+      deadline: apiTask.deadline 
+        ? apiTask.deadline.split('T')[0]
+        : undefined,
       isBacklog: apiTask.is_backlog,
       completed: apiTask.completed,
       createdAt: apiTask.created_at,
