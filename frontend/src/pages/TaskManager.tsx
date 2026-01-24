@@ -18,7 +18,7 @@ function TaskManager() {
   const [error, setError] = useState<string | null>(null);
   const [completedFilter, setCompletedFilter] = useState<
     "all" | "finished" | "unfinished"
-  >("all");
+  >("unfinished");
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [deadlineFilter, setDeadlineFilter] = useState<
     "all" | "today" | "tomorrow" | "next-week" | "next-month"
@@ -44,6 +44,13 @@ function TaskManager() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const resetFilters = () => {
+    setCompletedFilter("unfinished");
+    setSelectedDomains([]);
+    setDeadlineFilter("all");
+    setSortBy("default");
   };
 
   const toggleDomain = (domain: string) => {
@@ -204,10 +211,10 @@ function TaskManager() {
             setDeadlineFilter={setDeadlineFilter}
             sortBy={sortBy}
             setSortBy={setSortBy}
+            onResetFilters={resetFilters}
           />
         </Card>
 
-        {/* ============ BOX 2: TASKS (MITTE) ============ */}
         {/* ============ BOX 2: TASKS (MITTE) ============ */}
         <Card className="rounded-none bg-muted/30 p-6 flex flex-col overflow-hidden">
           {/* ZENTRALE EMPTY STATE - wenn beide Listen leer */}
@@ -215,7 +222,7 @@ function TaskManager() {
           backlogTasks.length === 0 &&
           selectedDomains.length === 0 &&
           deadlineFilter === "all" &&
-          completedFilter === "all" &&
+          completedFilter === "unfinished" &&
           sortBy === "default" ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center py-8">
