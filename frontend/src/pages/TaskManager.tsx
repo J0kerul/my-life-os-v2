@@ -10,7 +10,7 @@ import { Card } from "@/components/ui/card";
 import { ALL_DOMAINS } from "../constants";
 import type { Task } from "../types";
 import { Plus } from "lucide-react";
-import { taskService } from "../services/taskService";
+import { taskService, type CreateTaskRequest } from "../services/taskService";
 
 function TaskManager() {
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -147,9 +147,7 @@ function TaskManager() {
     }
   };
 
-  const handleCreateTask = async (
-    taskData: Omit<Task, "id" | "createdAt" | "updatedAt">,
-  ) => {
+  const handleCreateTask = async (taskData: CreateTaskRequest) => {
     try {
       const newTask = await taskService.createTask(taskData);
       setTasks([...tasks, newTask]);

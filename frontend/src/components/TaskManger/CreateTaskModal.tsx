@@ -1,16 +1,47 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { X, Save } from "lucide-react";
+import { X, Save, CalendarIcon } from "lucide-react";
 import { ALL_DOMAINS } from "@/constants";
-import type { Task } from "@/types";
+import type { CreateTaskRequest } from "@/services/taskService";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 type CreateTaskModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onCreateTask: (task: Omit<Task, "id" | "createdAt">) => void;
+  onCreateTask: (task: CreateTaskRequest) => void;
 };
 
 const PRIORITIES = ["low", "medium", "high"] as const;
+
+// Convert YYYY-MM-DD to Date object
+const stringToDate = (dateString: string): Date | undefined => {
+  if (!dateString) return undefined;
+  const [year, month, day] = dateString.split("-");
+  return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+};
+
+// Convert Date to YYYY-MM-DD
+const dateToString = (date: Date | undefined): string => {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export function CreateTaskModal({
   isOpen,
@@ -26,6 +57,7 @@ export function CreateTaskModal({
 
   const handleSubmit = () => {
     if (!title.trim()) return;
+    if (!isBacklog && !deadline) return;
 
     onCreateTask({
       title,
@@ -48,6 +80,8 @@ export function CreateTaskModal({
 
   if (!isOpen) return null;
 
+  const selectedDate = stringToDate(deadline);
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <Card className="p-6 max-w-lg w-full mx-4">
@@ -56,7 +90,7 @@ export function CreateTaskModal({
           <h3 className="text-lg font-semibold">Create New Task</h3>
           <button
             onClick={onClose}
-            className="p-1 hover:bg-muted rounded-md transition-colors"
+            className="p-1 hover:bg-muted rounded-md transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -77,11 +111,17 @@ export function CreateTaskModal({
             />
           </div>
 
-          {/* Backlog Toggle + Date Input */}
+          {/* Backlog Toggle + Date Picker */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsBacklog(!isBacklog)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              onClick={() => {
+                const newBacklogState = !isBacklog;
+                setIsBacklog(newBacklogState);
+                if (newBacklogState) {
+                  setDeadline("");
+                }
+              }}
+              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors cursor-pointer ${
                 isBacklog
                   ? "bg-muted text-foreground"
                   : "bg-transparent border border-border"
@@ -91,12 +131,27 @@ export function CreateTaskModal({
             </button>
 
             {!isBacklog && (
-              <input
-                type="date"
-                value={deadline}
-                onChange={(e) => setDeadline(e.target.value)}
-                className="flex-1 px-3 py-1.5 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="flex-1 flex items-center justify-between px-3 py-1.5 text-sm bg-background border border-border rounded-md hover:bg-muted transition-colors cursor-pointer">
+                    {selectedDate ? (
+                      format(selectedDate, "dd.MM.yyyy", { locale: de })
+                    ) : (
+                      <span className="text-muted-foreground">Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => setDeadline(dateToString(date))}
+                    locale={de}
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
             )}
           </div>
 
@@ -115,37 +170,42 @@ export function CreateTaskModal({
           </div>
 
           {/* Domain + Priority */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-end gap-2">
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Domain</label>
-              <select
-                value={domain}
-                onChange={(e) => setDomain(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer capitalize"
-              >
-                {ALL_DOMAINS.map((d) => (
-                  <option key={d} value={d}>
-                    {d}
-                  </option>
-                ))}
-              </select>
+              <Select value={domain} onValueChange={setDomain}>
+                <SelectTrigger className="w-full cursor-pointer text-sm capitalize">
+                  <SelectValue placeholder="Select domain" />
+                </SelectTrigger>
+                <SelectContent position="popper" side="bottom" sideOffset={4}>
+                  {ALL_DOMAINS.map((d) => (
+                    <SelectItem key={d} value={d} className="capitalize">
+                      {d}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="flex-1">
               <label className="text-sm font-medium mb-2 block">Priority</label>
-              <select
+              <Select
                 value={priority}
-                onChange={(e) =>
-                  setPriority(e.target.value as "low" | "medium" | "high")
+                onValueChange={(value) =>
+                  setPriority(value as "low" | "medium" | "high")
                 }
-                className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer capitalize"
               >
-                {PRIORITIES.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-full cursor-pointer text-sm capitalize">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent position="popper" side="bottom" sideOffset={4}>
+                  {PRIORITIES.map((p) => (
+                    <SelectItem key={p} value={p} className="capitalize">
+                      {p}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>
@@ -154,14 +214,14 @@ export function CreateTaskModal({
         <div className="flex gap-3 justify-end mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm border border-border rounded-md hover:bg-muted transition-colors"
+            className="px-4 py-2 text-sm border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
-            disabled={!title.trim()}
-            className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={!title.trim() || (!isBacklog && !deadline)}
+            className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Save className="w-4 h-4" />
             Create Task
