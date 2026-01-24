@@ -32,6 +32,12 @@ const getPriorityStyle = (priority: "low" | "medium" | "high") => {
   }
 };
 
+// Format date from YYYY-MM-DD to DD.MM.YYYY
+const formatDateGerman = (dateString: string): string => {
+  const [year, month, day] = dateString.split("-");
+  return `${day}.${month}.${year}`;
+};
+
 const getDeadlineDisplay = (deadline: string) => {
   const today = new Date();
   const taskDate = new Date(deadline);
@@ -50,19 +56,19 @@ const getDeadlineDisplay = (deadline: string) => {
     };
   } else if (diffDays === 0) {
     return {
-      text: "heute",
+      text: "today",
       color: "#EF4444",
       isCritical: true,
     };
   } else if (diffDays === 1) {
     return {
-      text: "morgen",
+      text: "tomorrow",
       color: "#F59E0B",
       isCritical: false,
     };
   } else {
     return {
-      text: deadline,
+      text: `Due ${formatDateGerman(deadline)}`,
       color: "inherit",
       isCritical: false,
     };
