@@ -3,6 +3,7 @@ module github.com/J0kerul/my-life-os-v2
 go 1.25.5
 
 require (
+	github.com/go-chi/chi v1.5.5 // indirect
 	github.com/go-chi/chi/v5 v5.2.4 // indirect
 	github.com/go-chi/cors v1.2.2 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect

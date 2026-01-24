@@ -43,10 +43,10 @@ type TaskResponse struct {
 	UpdatedAt   time.Time  `json:"updated_at"`
 }
 type TaskHandler struct {
-	service TaskService
+	service TaskServiceInterface
 }
 
-func NewTaskHandler(service TaskService) *TaskHandler {
+func NewTaskHandler(service TaskServiceInterface) *TaskHandler {
 	return &TaskHandler{
 		service: service,
 	}

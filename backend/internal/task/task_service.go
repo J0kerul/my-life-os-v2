@@ -9,10 +9,10 @@ import (
 )
 
 type TaskService struct {
-	repo TaskRepo
+	repo TaskRepositoryInterface
 }
 
-func NewTaskService(repo TaskRepo) *TaskService {
+func NewTaskService(repo TaskRepositoryInterface) *TaskService {
 	return &TaskService{
 		repo: repo,
 	}

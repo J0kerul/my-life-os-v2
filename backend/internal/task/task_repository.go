@@ -131,5 +131,9 @@ func (r *TaskRepo) ToggleStatus(ctx context.Context, taskid uuid.UUID) error {
 	query := `UPDATE tasks SET completed = NOT completed, updated_at=NOW() WHERE task_id=$1`
 	_, err := r.db.Exec(ctx, query, taskid)
 
-	return fmt.Errorf("failed to toggle task status: %w", err)
+	if err != nil {
+		return fmt.Errorf("failed to toggle task status: %w", err)
+	}
+
+	return nil
 }
