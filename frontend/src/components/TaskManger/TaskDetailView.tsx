@@ -89,7 +89,7 @@ export function TaskDetailView({
         domain: editDomain,
         priority: editPriority,
         isBacklog: editIsBacklog,
-        deadline: editIsBacklog ? undefined : editDeadline,
+        deadline: editIsBacklog ? null : editDeadline || undefined, // ← null wenn Backlog!
       });
 
       onTaskUpdated(updatedTask);
@@ -213,7 +213,13 @@ export function TaskDetailView({
             {/* Backlog Toggle + Date Input - unter dem Titel */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setEditIsBacklog(!editIsBacklog)}
+                onClick={() => {
+                  const newBacklogState = !editIsBacklog;
+                  setEditIsBacklog(newBacklogState);
+                  if (newBacklogState) {
+                    setEditDeadline(""); // Deadline löschen wenn Backlog aktiviert
+                  }
+                }}
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                   editIsBacklog
                     ? "bg-muted text-foreground"

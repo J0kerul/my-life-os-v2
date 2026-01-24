@@ -9,11 +9,24 @@ export type ApiTask = {
   domain: string;
   project_id?: string;
   uni_module_id?: string;
-  deadline?: string;
+  deadline?: string | null;
   is_backlog: boolean;
   completed: boolean;
   created_at: string;
   updated_at: string;
+};
+
+// ← NEUER TYPE FÜR toApi INPUT!
+export type ApiTaskInput = {
+  title?: string;
+  description?: string;
+  priority?: "low" | "medium" | "high";
+  domain?: string;
+  projectId?: string;
+  uniModuleId?: string;
+  deadline?: string | null;  // ← null erlaubt!
+  isBacklog?: boolean;
+  completed?: boolean;
 };
 
 export const taskMapper = {
@@ -38,7 +51,7 @@ export const taskMapper = {
   },
 
   // Frontend → API (für POST/PUT requests)
-  toApi(task: Partial<Task>): Partial<Omit<ApiTask, "task_id" | "created_at" | "updated_at">> {
+  toApi(task: ApiTaskInput): Partial<Omit<ApiTask, "task_id" | "created_at" | "updated_at">> {
     const apiTask: Partial<Omit<ApiTask, "task_id" | "created_at" | "updated_at">> = {};
     
     if (task.title !== undefined) apiTask.title = task.title;
