@@ -8,11 +8,27 @@ import {
   Trash2,
   X,
   Save,
+  CalendarIcon,
 } from "lucide-react";
 import type { Task } from "@/types";
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { taskService } from "@/services/taskService";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
 
 type TaskDetailViewProps = {
   task: Task | null;
@@ -31,6 +47,29 @@ const getPriorityStyle = (priority: "low" | "medium" | "high") => {
     case "low":
       return { color: "#10B981", borderColor: "#10B981", label: "Low" };
   }
+};
+
+// Format date from YYYY-MM-DD to DD.MM.YYYY
+const formatDateGerman = (dateString: string | undefined): string => {
+  if (!dateString) return "";
+  const [year, month, day] = dateString.split("-");
+  return `${day}.${month}.${year}`;
+};
+
+// Convert YYYY-MM-DD to Date object
+const stringToDate = (dateString: string): Date | undefined => {
+  if (!dateString) return undefined;
+  const [year, month, day] = dateString.split("-");
+  return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+};
+
+// Convert Date to YYYY-MM-DD
+const dateToString = (date: Date | undefined): string => {
+  if (!date) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 };
 
 export function TaskDetailView({
@@ -89,7 +128,7 @@ export function TaskDetailView({
         domain: editDomain,
         priority: editPriority,
         isBacklog: editIsBacklog,
-        deadline: editIsBacklog ? null : editDeadline || undefined, // ← null wenn Backlog!
+        deadline: editIsBacklog ? null : editDeadline || undefined,
       });
 
       onTaskUpdated(updatedTask);
@@ -111,6 +150,8 @@ export function TaskDetailView({
     }
   };
 
+  const selectedDate = stringToDate(editDeadline);
+
   return (
     <div>
       {/* Header mit Buttons */}
@@ -121,7 +162,7 @@ export function TaskDetailView({
           <div className="flex items-center gap-2">
             <button
               onClick={handleStartEdit}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
               title="Edit task"
             >
               <Edit className="w-4 h-4" />
@@ -129,7 +170,7 @@ export function TaskDetailView({
             </button>
             <button
               onClick={() => setShowDeleteConfirm(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-destructive/50 text-destructive rounded-md hover:bg-destructive/10 transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 text-sm border border-destructive/50 text-destructive rounded-md hover:bg-destructive/10 transition-colors cursor-pointer"
               title="Delete task"
             >
               <Trash2 className="w-4 h-4" />
@@ -157,7 +198,7 @@ export function TaskDetailView({
                 </Badge>
               ) : (
                 <span className="text-sm font-medium whitespace-nowrap">
-                  {task.deadline}
+                  {formatDateGerman(task.deadline)}
                 </span>
               )}
             </div>
@@ -210,17 +251,17 @@ export function TaskDetailView({
               />
             </div>
 
-            {/* Backlog Toggle + Date Input - unter dem Titel */}
+            {/* Backlog Toggle + Date Picker - unter dem Titel */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => {
                   const newBacklogState = !editIsBacklog;
                   setEditIsBacklog(newBacklogState);
                   if (newBacklogState) {
-                    setEditDeadline(""); // Deadline löschen wenn Backlog aktiviert
+                    setEditDeadline("");
                   }
                 }}
-                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
                   editIsBacklog
                     ? "bg-muted text-foreground"
                     : "bg-transparent border border-border"
@@ -230,12 +271,29 @@ export function TaskDetailView({
               </button>
 
               {!editIsBacklog && (
-                <input
-                  type="date"
-                  value={editDeadline}
-                  onChange={(e) => setEditDeadline(e.target.value)}
-                  className="flex-1 px-3 py-1.5 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="flex-1 flex items-center justify-between px-3 py-1.5 text-sm bg-background border border-border rounded-md hover:bg-muted transition-colors cursor-pointer">
+                      {selectedDate ? (
+                        format(selectedDate, "dd.MM.yyyy", { locale: de })
+                      ) : (
+                        <span className="text-muted-foreground">
+                          Pick a date
+                        </span>
+                      )}
+                      <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => setEditDeadline(dateToString(date))}
+                      locale={de}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               )}
             </div>
 
@@ -250,45 +308,60 @@ export function TaskDetailView({
 
             {/* Domain + Priority Dropdowns */}
             <div className="flex items-center justify-between gap-2">
-              <select
-                value={editDomain}
-                onChange={(e) => setEditDomain(e.target.value)}
-                className="flex-1 px-3 py-2 text-xs bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer capitalize"
-              >
-                {ALL_DOMAINS.map((domain) => (
-                  <option key={domain} value={domain}>
-                    {domain}
-                  </option>
-                ))}
-              </select>
+              {/* Domain Select */}
+              <Select value={editDomain} onValueChange={setEditDomain}>
+                <SelectTrigger className="flex-1 cursor-pointer text-xs capitalize">
+                  <SelectValue placeholder="Select domain" />
+                </SelectTrigger>
+                <SelectContent position="popper" side="bottom" sideOffset={4}>
+                  {ALL_DOMAINS.map((domain) => (
+                    <SelectItem
+                      key={domain}
+                      value={domain}
+                      className="capitalize"
+                    >
+                      {domain}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
 
-              <select
+              {/* Priority Select */}
+              <Select
                 value={editPriority}
-                onChange={(e) =>
-                  setEditPriority(e.target.value as "low" | "medium" | "high")
+                onValueChange={(value) =>
+                  setEditPriority(value as "low" | "medium" | "high")
                 }
-                className="w-30 px-3 py-2 text-xs bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer capitalize"
               >
-                {PRIORITIES.map((priority) => (
-                  <option key={priority} value={priority}>
-                    {priority}
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger className="w-32 cursor-pointer text-xs capitalize">
+                  <SelectValue placeholder="Select priority" />
+                </SelectTrigger>
+                <SelectContent position="popper" side="bottom" sideOffset={4}>
+                  {PRIORITIES.map((priority) => (
+                    <SelectItem
+                      key={priority}
+                      value={priority}
+                      className="capitalize"
+                    >
+                      {priority}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Save/Cancel Buttons */}
             <div className="flex items-center gap-2 pt-2">
               <button
                 onClick={handleUpdate}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors font-medium"
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-md hover:opacity-90 active:opacity-80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 transition-all font-medium cursor-pointer"
               >
                 <Save className="w-4 h-4" />
                 Save Changes
               </button>
               <button
                 onClick={() => setIsEditing(false)}
-                className="px-4 py-2 border border-border rounded-md hover:bg-muted transition-colors"
+                className="px-4 py-2 border border-border rounded-md hover:bg-muted active:bg-muted/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border transition-all cursor-pointer"
                 title="Cancel"
               >
                 <X className="w-4 h-4" />
@@ -329,13 +402,13 @@ export function TaskDetailView({
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 text-sm border border-border rounded-md hover:bg-muted transition-colors"
+                className="px-4 py-2 text-sm border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
-                className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors font-medium"
+                className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors font-medium cursor-pointer"
               >
                 Delete
               </button>
