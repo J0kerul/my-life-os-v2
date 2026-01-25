@@ -75,12 +75,7 @@ const getDeadlineDisplay = (deadline: string) => {
   }
 };
 
-export function TaskCard({
-  task,
-  isSelected,
-  onToggle,
-  onSelect,
-}: TaskCardProps) {
+export function TaskCard({ task, onToggle, onSelect }: TaskCardProps) {
   const domainColor = DOMAIN_COLORS[task.domain] || "#6B7280";
   const DomainIcon =
     DOMAIN_ICONS[task.domain as keyof typeof DOMAIN_ICONS] || Briefcase;
@@ -91,9 +86,7 @@ export function TaskCard({
 
   return (
     <Card
-      className={`p-4 cursor-pointer transition-all hover:shadow-md ${
-        isSelected ? "ring-2 ring-primary" : ""
-      }`}
+      className="p-4 cursor-pointer transition-all hover:shadow-md"
       onClick={() => onSelect(task.id)}
     >
       <div className="flex items-center gap-3">

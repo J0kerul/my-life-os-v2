@@ -41,7 +41,10 @@ export function FilterSidebar({
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold">Filters</h2>
         <button
-          onClick={onResetFilters}
+          onClick={(e) => {
+            e.stopPropagation();
+            onResetFilters();
+          }}
           className="flex items-center gap-1.5 px-2 py-1 text-xs border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
           title="Reset all filters"
         >
@@ -62,7 +65,10 @@ export function FilterSidebar({
             return (
               <button
                 key={domain}
-                onClick={() => toggleDomain(domain)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleDomain(domain);
+                }}
                 className="w-full px-3 py-2 rounded-md text-sm font-medium transition-all text-left cursor-pointer hover:opacity-80 flex items-center gap-2"
                 style={{
                   backgroundColor: isSelected ? color : "transparent",
