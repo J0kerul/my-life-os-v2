@@ -6,6 +6,7 @@ import { TaskDetailView } from "../components/TaskManger/TaskDetailView";
 import { TodaysSchedule } from "../components/TaskManger/TodaysSchedule";
 import { TaskManagerHeader } from "../components/TaskManger/TaskManagerHeader";
 import { CreateTaskModal } from "../components/TaskManger/CreateTaskModal";
+import { Sidebar } from "../components/Sidebar";
 import { Card } from "@/components/ui/card";
 import { ALL_DOMAINS } from "../constants";
 import type { Task } from "../types";
@@ -26,6 +27,7 @@ function TaskManager() {
   const [sortBy, setSortBy] = useState<"default" | "priority">("default");
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     loadTasks();
@@ -203,165 +205,187 @@ function TaskManager() {
   }
 
   return (
-    <div
-      className="min-h-screen bg-background p-6"
-      onClick={handleBackgroundClick}
-    >
-      <TaskManagerHeader tasks={tasks} />
+    <>
+      {/* Sidebar */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] pl-32 pr-32">
-        <Card className="rounded-r-none p-6">
-          <FilterSidebar
-            completedFilter={completedFilter}
-            setCompletedFilter={setCompletedFilter}
-            selectedDomains={selectedDomains}
-            toggleDomain={toggleDomain}
-            deadlineFilter={deadlineFilter}
-            setDeadlineFilter={setDeadlineFilter}
-            sortBy={sortBy}
-            setSortBy={setSortBy}
-            onResetFilters={resetFilters}
-          />
-        </Card>
+      <div
+        className="min-h-screen bg-background p-6"
+        onClick={handleBackgroundClick}
+      >
+        {/* Header mit Burger Button */}
+        <TaskManagerHeader
+          tasks={tasks}
+          onMenuClick={() => setSidebarOpen(true)}
+        />
 
-        <Card className="rounded-none bg-muted/30 p-6 flex flex-col overflow-hidden">
-          {deadlineTasks.length === 0 &&
-          backlogTasks.length === 0 &&
-          selectedDomains.length === 0 &&
-          deadlineFilter === "all" &&
-          (completedFilter === "unfinished" || completedFilter === "all") &&
-          sortBy === "default" ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center py-8">
-                <p className="text-lg font-semibold mb-2">No tasks yet!</p>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Get started by creating your first task.
-                </p>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowCreateModal(true);
-                  }}
-                  className="flex items-center gap-1.5 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 font-medium cursor-pointer mx-auto"
-                >
-                  <Plus className="w-4 h-4" />
-                  Create Your First Task
-                </button>
-              </div>
-            </div>
-          ) : deadlineTasks.length === 0 && backlogTasks.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <div className="text-center py-8">
-                <p className="text-sm text-muted-foreground italic">
-                  No tasks match your filters.
-                </p>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Try adjusting your filters to see more tasks.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-6 h-full min-h-0">
-              <div className="flex flex-col min-h-0">
-                <div className="flex items-center justify-between mb-4 shrink-0">
-                  <h2 className="text-xl font-semibold">Deadline</h2>
-                </div>
-                <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0 custom-scrollbar">
-                  {deadlineTasks.length === 0 ? (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-sm text-muted-foreground italic">
-                        No deadline tasks.
-                      </p>
-                    </div>
-                  ) : (
-                    deadlineTasks.map((task) => (
-                      <div key={task.id} onClick={(e) => e.stopPropagation()}>
-                        <TaskCard
-                          task={task}
-                          isSelected={selectedTaskId === task.id}
-                          onToggle={toggleTask}
-                          onSelect={setSelectedTaskId}
-                        />
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
+        {/* 3 BOXEN NEBENEINANDER */}
+        <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] pl-32 pr-32">
+          {/* ============ BOX 1: FILTER (LINKS) ============ */}
+          <Card className="rounded-r-none p-6">
+            <FilterSidebar
+              completedFilter={completedFilter}
+              setCompletedFilter={setCompletedFilter}
+              selectedDomains={selectedDomains}
+              toggleDomain={toggleDomain}
+              deadlineFilter={deadlineFilter}
+              setDeadlineFilter={setDeadlineFilter}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              onResetFilters={resetFilters}
+            />
+          </Card>
 
-              <div className="flex flex-col min-h-0">
-                <div className="flex items-center justify-between mb-4 shrink-0">
-                  <h2 className="text-xl font-semibold">Backlog</h2>
+          {/* ============ BOX 2: TASKS (MITTE) ============ */}
+          <Card className="rounded-none bg-muted/30 p-6 flex flex-col overflow-hidden">
+            {/* ZENTRALE EMPTY STATE - wenn beide Listen leer */}
+            {deadlineTasks.length === 0 &&
+            backlogTasks.length === 0 &&
+            selectedDomains.length === 0 &&
+            deadlineFilter === "all" &&
+            (completedFilter === "unfinished" || completedFilter === "all") &&
+            sortBy === "default" ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center py-8">
+                  <p className="text-lg font-semibold mb-2">No tasks yet!</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Get started by creating your first task.
+                  </p>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
                       setShowCreateModal(true);
                     }}
-                    className="flex items-center gap-1.5 px-2 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 font-medium whitespace-nowrap cursor-pointer"
+                    className="flex items-center gap-1.5 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 font-medium cursor-pointer mx-auto"
                   >
-                    <Plus className="w-3.5 h-3.5" />
-                    Create Task
+                    <Plus className="w-4 h-4" />
+                    Create Your First Task
                   </button>
                 </div>
-                <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0 custom-scrollbar">
-                  {backlogTasks.length === 0 ? (
-                    <div className="flex items-center justify-center h-full">
-                      <p className="text-sm text-muted-foreground italic">
-                        No backlog tasks.
-                      </p>
-                    </div>
-                  ) : (
-                    backlogTasks.map((task) => (
-                      <div key={task.id} onClick={(e) => e.stopPropagation()}>
-                        <TaskCard
-                          task={task}
-                          isSelected={selectedTaskId === task.id}
-                          onToggle={toggleTask}
-                          onSelect={setSelectedTaskId}
-                        />
-                      </div>
-                    ))
-                  )}
+              </div>
+            ) : deadlineTasks.length === 0 && backlogTasks.length === 0 ? (
+              <div className="flex items-center justify-center h-full">
+                <div className="text-center py-8">
+                  <p className="text-sm text-muted-foreground italic">
+                    No tasks match your filters.
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Try adjusting your filters to see more tasks.
+                  </p>
                 </div>
               </div>
-            </div>
-          )}
-        </Card>
+            ) : (
+              <div className="grid grid-cols-2 gap-6 h-full min-h-0">
+                {/* DEADLINE TASKS */}
+                <div className="flex flex-col min-h-0">
+                  <div className="flex items-center justify-between mb-4 shrink-0">
+                    <h2 className="text-xl font-semibold">Deadline</h2>
+                  </div>
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0 custom-scrollbar">
+                    {deadlineTasks.length === 0 ? (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-sm text-muted-foreground italic">
+                          No deadline tasks.
+                        </p>
+                      </div>
+                    ) : (
+                      deadlineTasks.map((task) => (
+                        <div key={task.id} onClick={(e) => e.stopPropagation()}>
+                          <TaskCard
+                            task={task}
+                            isSelected={selectedTaskId === task.id}
+                            onToggle={toggleTask}
+                            onSelect={setSelectedTaskId}
+                          />
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
 
-        <div className="flex flex-col gap-0">
-          <Card className="rounded-l-none rounded-b-none p-6 flex-1">
-            <StatsPanel stats={domainStats} />
+                {/* BACKLOG TASKS */}
+                <div className="flex flex-col min-h-0">
+                  <div className="flex items-center justify-between mb-4 shrink-0">
+                    <h2 className="text-xl font-semibold">Backlog</h2>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowCreateModal(true);
+                      }}
+                      className="flex items-center gap-1.5 px-2 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 font-medium whitespace-nowrap cursor-pointer"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Create Task
+                    </button>
+                  </div>
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-2 min-h-0 custom-scrollbar">
+                    {backlogTasks.length === 0 ? (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-sm text-muted-foreground italic">
+                          No backlog tasks.
+                        </p>
+                      </div>
+                    ) : (
+                      backlogTasks.map((task) => (
+                        <div key={task.id} onClick={(e) => e.stopPropagation()}>
+                          <TaskCard
+                            task={task}
+                            isSelected={selectedTaskId === task.id}
+                            onToggle={toggleTask}
+                            onSelect={setSelectedTaskId}
+                          />
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </Card>
 
-          <Card
-            className="rounded-none p-6 flex-1"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <TaskDetailView
-              task={selectedTask}
-              onTaskUpdated={(updatedTask) => {
-                setTasks(
-                  tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t)),
-                );
-              }}
-              onTaskDeleted={(taskId) => {
-                setTasks(tasks.filter((t) => t.id !== taskId));
-                setSelectedTaskId(null);
-              }}
-            />
-          </Card>
+          {/* ============ RECHTE SPALTE: 3 BOXEN ÜBEREINANDER ============ */}
+          <div className="flex flex-col gap-0">
+            {/* Domain Stats Box */}
+            <Card className="rounded-l-none rounded-b-none p-6 flex-1">
+              <StatsPanel stats={domainStats} />
+            </Card>
 
-          <Card className="rounded-l-none rounded-t-none p-6 flex-1">
-            <TodaysSchedule />
-          </Card>
+            {/* Task Detail View Box */}
+            <Card
+              className="rounded-none p-6 flex-1"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <TaskDetailView
+                task={selectedTask}
+                onTaskUpdated={(updatedTask) => {
+                  setTasks(
+                    tasks.map((t) =>
+                      t.id === updatedTask.id ? updatedTask : t,
+                    ),
+                  );
+                }}
+                onTaskDeleted={(taskId) => {
+                  setTasks(tasks.filter((t) => t.id !== taskId));
+                  setSelectedTaskId(null);
+                }}
+              />
+            </Card>
+
+            {/* Today's Schedule Box */}
+            <Card className="rounded-l-none rounded-t-none p-6 flex-1">
+              <TodaysSchedule />
+            </Card>
+          </div>
         </div>
-      </div>
 
-      <CreateTaskModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreateTask={handleCreateTask}
-      />
-    </div>
+        {/* Create Task Modal */}
+        <CreateTaskModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreateTask={handleCreateTask}
+        />
+      </div>
+    </>
   );
 }
 
