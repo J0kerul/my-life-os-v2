@@ -83,13 +83,22 @@ export function CreateTaskModal({
   const selectedDate = stringToDate(deadline);
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <Card className="p-6 max-w-lg w-full mx-4">
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <Card
+        className="p-6 max-w-lg w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-lg font-semibold">Create New Task</h3>
           <button
-            onClick={onClose}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
             className="p-1 hover:bg-muted rounded-md transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
@@ -108,13 +117,15 @@ export function CreateTaskModal({
               placeholder="Task title..."
               className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
               autoFocus
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
 
           {/* Backlog Toggle + Date Picker */}
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 const newBacklogState = !isBacklog;
                 setIsBacklog(newBacklogState);
                 if (newBacklogState) {
@@ -133,7 +144,10 @@ export function CreateTaskModal({
             {!isBacklog && (
               <Popover>
                 <PopoverTrigger asChild>
-                  <button className="flex-1 flex items-center justify-between px-3 py-1.5 text-sm bg-background border border-border rounded-md hover:bg-muted transition-colors cursor-pointer">
+                  <button
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 flex items-center justify-between px-3 py-1.5 text-sm bg-background border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
+                  >
                     {selectedDate ? (
                       format(selectedDate, "dd.MM.yyyy", { locale: de })
                     ) : (
@@ -142,7 +156,11 @@ export function CreateTaskModal({
                     <CalendarIcon className="ml-2 h-4 w-4 opacity-50" />
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
+                <PopoverContent
+                  className="w-auto p-0"
+                  align="start"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <Calendar
                     mode="single"
                     selected={selectedDate}
@@ -166,6 +184,7 @@ export function CreateTaskModal({
               rows={3}
               placeholder="Add a description..."
               className="w-full px-3 py-2 text-sm bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+              onClick={(e) => e.stopPropagation()}
             />
           </div>
 
@@ -213,13 +232,19 @@ export function CreateTaskModal({
         {/* Actions */}
         <div className="flex gap-3 justify-end mt-6">
           <button
-            onClick={onClose}
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
             className="px-4 py-2 text-sm border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
           >
             Cancel
           </button>
           <button
-            onClick={handleSubmit}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSubmit();
+            }}
             disabled={!title.trim() || (!isBacklog && !deadline)}
             className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >

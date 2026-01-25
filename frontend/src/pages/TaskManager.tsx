@@ -27,7 +27,6 @@ function TaskManager() {
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  // Load tasks on mount
   useEffect(() => {
     loadTasks();
   }, []);
@@ -119,11 +118,9 @@ function TaskManager() {
   const deadlineTasks = filteredTasks
     .filter((task) => !task.isBacklog)
     .sort((a, b) => {
-      // Completed tasks immer nach unten
       if (a.completed && !b.completed) return 1;
       if (!a.completed && b.completed) return -1;
 
-      // Beide completed oder beide uncompleted - normale Sortierung
       if (sortBy === "priority") {
         return priorityValue(b.priority) - priorityValue(a.priority);
       } else {
@@ -135,11 +132,9 @@ function TaskManager() {
   const backlogTasks = filteredTasks
     .filter((task) => task.isBacklog)
     .sort((a, b) => {
-      // Completed tasks immer nach unten
       if (a.completed && !b.completed) return 1;
       if (!a.completed && b.completed) return -1;
 
-      // Beide completed oder beide uncompleted - normale Sortierung
       if (sortBy === "priority") {
         return priorityValue(b.priority) - priorityValue(a.priority);
       } else {
@@ -175,6 +170,10 @@ function TaskManager() {
     }
   };
 
+  const handleBackgroundClick = () => {
+    setSelectedTaskId(null);
+  };
+
   const selectedTask = selectedTaskId
     ? tasks.find((t) => t.id === selectedTaskId) || null
     : null;
@@ -204,13 +203,13 @@ function TaskManager() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-6">
-      {/* Header */}
+    <div
+      className="min-h-screen bg-background p-6"
+      onClick={handleBackgroundClick}
+    >
       <TaskManagerHeader tasks={tasks} />
 
-      {/* 3 BOXEN NEBENEINANDER */}
       <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] pl-32 pr-32">
-        {/* ============ BOX 1: FILTER (LINKS) ============ */}
         <Card className="rounded-r-none p-6">
           <FilterSidebar
             completedFilter={completedFilter}
@@ -225,15 +224,13 @@ function TaskManager() {
           />
         </Card>
 
-        {/* ============ BOX 2: TASKS (MITTE) ============ */}
         <Card className="rounded-none bg-muted/30 p-6 flex flex-col overflow-hidden">
-          {/* ZENTRALE EMPTY STATE - wenn beide Listen leer */}
           {deadlineTasks.length === 0 &&
           backlogTasks.length === 0 &&
           selectedDomains.length === 0 &&
           deadlineFilter === "all" &&
           (completedFilter === "unfinished" || completedFilter === "all") &&
-          (sortBy === "default" || sortBy === "priority") ? (
+          sortBy === "default" ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center py-8">
                 <p className="text-lg font-semibold mb-2">No tasks yet!</p>
@@ -241,7 +238,10 @@ function TaskManager() {
                   Get started by creating your first task.
                 </p>
                 <button
-                  onClick={() => setShowCreateModal(true)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowCreateModal(true);
+                  }}
                   className="flex items-center gap-1.5 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 font-medium cursor-pointer mx-auto"
                 >
                   <Plus className="w-4 h-4" />
@@ -262,7 +262,6 @@ function TaskManager() {
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-6 h-full min-h-0">
-              {/* DEADLINE TASKS */}
               <div className="flex flex-col min-h-0">
                 <div className="flex items-center justify-between mb-4 shrink-0">
                   <h2 className="text-xl font-semibold">Deadline</h2>
@@ -276,24 +275,27 @@ function TaskManager() {
                     </div>
                   ) : (
                     deadlineTasks.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        isSelected={selectedTaskId === task.id}
-                        onToggle={toggleTask}
-                        onSelect={setSelectedTaskId}
-                      />
+                      <div key={task.id} onClick={(e) => e.stopPropagation()}>
+                        <TaskCard
+                          task={task}
+                          isSelected={selectedTaskId === task.id}
+                          onToggle={toggleTask}
+                          onSelect={setSelectedTaskId}
+                        />
+                      </div>
                     ))
                   )}
                 </div>
               </div>
 
-              {/* BACKLOG TASKS */}
               <div className="flex flex-col min-h-0">
                 <div className="flex items-center justify-between mb-4 shrink-0">
                   <h2 className="text-xl font-semibold">Backlog</h2>
                   <button
-                    onClick={() => setShowCreateModal(true)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowCreateModal(true);
+                    }}
                     className="flex items-center gap-1.5 px-2 py-1 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 font-medium whitespace-nowrap cursor-pointer"
                   >
                     <Plus className="w-3.5 h-3.5" />
@@ -309,13 +311,14 @@ function TaskManager() {
                     </div>
                   ) : (
                     backlogTasks.map((task) => (
-                      <TaskCard
-                        key={task.id}
-                        task={task}
-                        isSelected={selectedTaskId === task.id}
-                        onToggle={toggleTask}
-                        onSelect={setSelectedTaskId}
-                      />
+                      <div key={task.id} onClick={(e) => e.stopPropagation()}>
+                        <TaskCard
+                          task={task}
+                          isSelected={selectedTaskId === task.id}
+                          onToggle={toggleTask}
+                          onSelect={setSelectedTaskId}
+                        />
+                      </div>
                     ))
                   )}
                 </div>
@@ -324,15 +327,15 @@ function TaskManager() {
           )}
         </Card>
 
-        {/* ============ RECHTE SPALTE: 3 BOXEN ÜBEREINANDER ============ */}
         <div className="flex flex-col gap-0">
-          {/* Domain Stats Box */}
           <Card className="rounded-l-none rounded-b-none p-6 flex-1">
             <StatsPanel stats={domainStats} />
           </Card>
 
-          {/* Task Detail View Box */}
-          <Card className="rounded-none p-6 flex-1">
+          <Card
+            className="rounded-none p-6 flex-1"
+            onClick={(e) => e.stopPropagation()}
+          >
             <TaskDetailView
               task={selectedTask}
               onTaskUpdated={(updatedTask) => {
@@ -347,14 +350,12 @@ function TaskManager() {
             />
           </Card>
 
-          {/* Today's Schedule Box */}
           <Card className="rounded-l-none rounded-t-none p-6 flex-1">
             <TodaysSchedule />
           </Card>
         </div>
       </div>
 
-      {/* Create Task Modal */}
       <CreateTaskModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
