@@ -119,6 +119,11 @@ function TaskManager() {
   const deadlineTasks = filteredTasks
     .filter((task) => !task.isBacklog)
     .sort((a, b) => {
+      // Completed tasks immer nach unten
+      if (a.completed && !b.completed) return 1;
+      if (!a.completed && b.completed) return -1;
+
+      // Beide completed oder beide uncompleted - normale Sortierung
       if (sortBy === "priority") {
         return priorityValue(b.priority) - priorityValue(a.priority);
       } else {
@@ -130,6 +135,11 @@ function TaskManager() {
   const backlogTasks = filteredTasks
     .filter((task) => task.isBacklog)
     .sort((a, b) => {
+      // Completed tasks immer nach unten
+      if (a.completed && !b.completed) return 1;
+      if (!a.completed && b.completed) return -1;
+
+      // Beide completed oder beide uncompleted - normale Sortierung
       if (sortBy === "priority") {
         return priorityValue(b.priority) - priorityValue(a.priority);
       } else {
@@ -222,8 +232,8 @@ function TaskManager() {
           backlogTasks.length === 0 &&
           selectedDomains.length === 0 &&
           deadlineFilter === "all" &&
-          completedFilter === "unfinished" &&
-          sortBy === "default" ? (
+          (completedFilter === "unfinished" || completedFilter === "all") &&
+          (sortBy === "default" || sortBy === "priority") ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center py-8">
                 <p className="text-lg font-semibold mb-2">No tasks yet!</p>

@@ -203,10 +203,10 @@ export function TaskDetailView({
               )}
             </div>
 
-            {/* Description - MIT SCROLL LIMIT */}
+            {/* Description - MIT SCROLL LIMIT UND ZEILENUMBRÜCHEN */}
             {task.description && (
               <div className="max-h-32 overflow-y-auto custom-scrollbar">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
                   {task.description}
                 </p>
               </div>

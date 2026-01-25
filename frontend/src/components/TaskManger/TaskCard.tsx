@@ -133,8 +133,8 @@ export function TaskCard({
           {task.domain}
         </Badge>
 
-        {/* Deadline - far right */}
-        {deadlineDisplay && (
+        {/* Deadline - far right - HIDDEN WHEN COMPLETED */}
+        {deadlineDisplay && !task.completed && (
           <p
             className={`text-xs whitespace-nowrap ml-auto ${
               deadlineDisplay.isCritical ? "font-bold" : ""
