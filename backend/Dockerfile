@@ -1,28 +1,22 @@
-# Build stage
-FROM golang:1.25.5-alpine AS builder
+FROM golang:1.25.5-alpine
 
 WORKDIR /app
+
+# Install Air for hot reload
+RUN go install github.com/air-verse/air@latest
 
 # Copy go mod files
 COPY go.mod go.sum ./
 RUN go mod download
 
-# Copy source code
+# Copy .air.toml config
+COPY .air.toml .
+
+# Copy source code (wird durch volumes überschrieben aber gut für build)
 COPY . .
 
-# Build binary
-RUN CGO_ENABLED=0 GOOS=linux go build -o /server cmd/server/main.go
-
-# Final stage
-FROM alpine:latest
-
-RUN apk --no-cache add ca-certificates
-
-WORKDIR /root/
-
-# Copy binary from builder
-COPY --from=builder /server .
-
+# Expose port
 EXPOSE 8080
 
-CMD ["./server"]
+# Run air
+CMD ["air", "-c", ".air.toml"]
