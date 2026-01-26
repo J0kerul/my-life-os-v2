@@ -27,7 +27,7 @@ export const JokerIcon = ({
       {/* J Letter */}
       <path d="M10 7 L10 13 Q10 15 12 15 Q14 15 14 13" />
 
-      {/* Decorative diamonds in all 4 corners - weiter nach innen */}
+      {/* Decorative diamonds in all 4 corners */}
 
       {/* Top-left */}
       <path d="M7 5 L8 6 L7 7 L6 6 Z" />

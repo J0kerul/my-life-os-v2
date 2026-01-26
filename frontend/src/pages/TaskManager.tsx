@@ -220,7 +220,7 @@ function TaskManager() {
         />
 
         {/* 3 BOXEN NEBENEINANDER */}
-        <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] pl-32 pr-32">
+        <div className="grid grid-cols-[240px_1fr_380px] gap-0 h-[calc(100vh-12rem)] px-6">
           {/* ============ BOX 1: FILTER (LINKS) ============ */}
           <Card className="rounded-r-none p-6">
             <FilterSidebar
