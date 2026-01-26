@@ -20,14 +20,26 @@ export const JokerIcon = ({
     className={className}
     {...props}
   >
-    {/* Card Border */}
-    <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+    <g transform="rotate(-15 12 12)">
+      {/* Card Border */}
+      <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
 
-    {/* J Letter */}
-    <path d="M10 7 L10 13 Q10 15 12 15 Q14 15 14 13" />
+      {/* J Letter */}
+      <path d="M10 7 L10 13 Q10 15 12 15 Q14 15 14 13" />
 
-    {/* Small decorative stars/diamonds */}
-    <path d="M8 18 L9 19 L8 20 L7 19 Z" />
-    <path d="M16 18 L17 19 L16 20 L15 19 Z" />
+      {/* Decorative diamonds in all 4 corners - weiter nach innen */}
+
+      {/* Top-left */}
+      <path d="M7 5 L8 6 L7 7 L6 6 Z" />
+
+      {/* Top-right */}
+      <path d="M17 5 L18 6 L17 7 L16 6 Z" />
+
+      {/* Bottom-left */}
+      <path d="M7 17 L8 18 L7 19 L6 18 Z" />
+
+      {/* Bottom-right */}
+      <path d="M17 17 L18 18 L17 19 L16 18 Z" />
+    </g>
   </svg>
 );
