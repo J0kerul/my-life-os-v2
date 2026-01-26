@@ -49,14 +49,12 @@ services:
       - DATABASE_URL=postgres://postgres:securepassword@db:5432/jokershub?sslmode=disable
       - PORT=8080
       - ENVIRONMENT=development
-    
     volumes:
-      - ./backend:/app/backend
-      - ./cmd:/app/cmd
-      - ./go.mod:/app/go.mod
-      - ./go.sum:/app/go.sum
-      - ./.air.toml:/app/.air.toml
+      - ./backend:/app
+      - /app/tmp
     depends_on:
+      db:
+        condition: service_healthy
       migrate:
         condition: service_completed_successfully
 

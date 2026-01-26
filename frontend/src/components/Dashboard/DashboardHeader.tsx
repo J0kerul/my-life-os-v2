@@ -41,30 +41,26 @@ export function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
 
   return (
     <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center">
-          {/* Burger Button - ganz links */}
+      <div className="flex items-center justify-between mb-4 px-6">
+        <div className="flex items-center gap-3">
+          {/* Burger Button */}
           <button
             onClick={onMenuClick}
-            className="p-2 hover:bg-muted rounded-md transition-colors cursor-pointer ml-6"
+            className="p-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
           >
             <Menu className="w-6 h-6" />
           </button>
 
-          {/* Greeting - mit Abstand rechts vom Button */}
-          <div className="pl-20">
-            <h1 className="text-3xl font-bold">{greeting}</h1>
-          </div>
+          {/* Greeting - direkt neben Button */}
+          <h1 className="text-3xl font-bold">{greeting}</h1>
         </div>
 
-        {/* Date - ganz rechts */}
-        <div className="text-2xl font-bold mr-32">
-          Today is the {formattedDate}
-        </div>
+        {/* Date - rechts */}
+        <div className="text-2xl font-bold">Today is the {formattedDate}</div>
       </div>
 
-      {/* Separator - sichtbarer */}
-      <div className="h-px bg-border opacity-50 ml-6 mr-6" />
+      {/* Separator */}
+      <div className="h-px bg-border opacity-50 mx-6" />
     </div>
   );
 }

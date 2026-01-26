@@ -16,7 +16,7 @@ function Dashboard() {
         <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
 
         {/* Dashboard Content */}
-        <div className="max-w-7xl mx-auto pl-32 pr-32">
+        <div className="px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div className="p-6 border border-border rounded-lg">
               <h2 className="text-xl font-semibold mb-2">
