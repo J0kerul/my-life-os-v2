@@ -43,16 +43,16 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <div
-        className={`fixed top-0 left-0 h-full w-64 bg-background border-r border-border z-50 transform transition-transform duration-300 ease-in-out ${
+        className={`fixed top-0 left-0 h-full w-80 bg-background border-r border-border z-50 transform transition-transform duration-300 ease-in-out ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Header */}
         <div className="p-6 border-b border-border">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <JokerIcon size={24} className="text-primary" />
-              <h1 className="text-xl font-bold">JOKER'S HUB</h1>
+            <div className="flex items-center gap-3">
+              <JokerIcon size={32} className="text-primary" />
+              <h1 className="text-2xl font-bold">JOKER'S HUB</h1>
             </div>
             <button
               onClick={onClose}
