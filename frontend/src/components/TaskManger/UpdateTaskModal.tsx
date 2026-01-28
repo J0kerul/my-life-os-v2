@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { X, Save, CalendarIcon, Trash2 } from "lucide-react";
+import { X, Save } from "lucide-react";
 import { ALL_DOMAINS } from "@/constants";
 import type { Task } from "@/types";
 import {
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { CalendarIcon } from "lucide-react";
 
 type UpdateTaskModalProps = {
   isOpen: boolean;
@@ -50,7 +51,6 @@ export function UpdateTaskModal({
   task,
   onClose,
   onUpdate,
-  onDelete,
 }: UpdateTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -58,7 +58,6 @@ export function UpdateTaskModal({
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
   const [isBacklog, setIsBacklog] = useState(false);
   const [deadline, setDeadline] = useState("");
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Load task data when task changes
   useEffect(() => {
@@ -88,13 +87,6 @@ export function UpdateTaskModal({
     onClose();
   };
 
-  const handleDelete = () => {
-    if (!task) return;
-    onDelete(task.id);
-    setShowDeleteConfirm(false);
-    onClose();
-  };
-
   if (!isOpen || !task) return null;
 
   const selectedDate = stringToDate(deadline);
@@ -111,27 +103,15 @@ export function UpdateTaskModal({
         {/* Header */}
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-lg font-semibold">Edit Task</h3>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowDeleteConfirm(true);
-              }}
-              className="p-1 hover:bg-destructive/10 text-destructive rounded-md transition-colors cursor-pointer"
-              title="Delete task"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onClose();
-              }}
-              className="p-1 hover:bg-muted rounded-md transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onClose();
+            }}
+            className="p-1 hover:bg-muted rounded-md transition-colors cursor-pointer"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         {/* Form */}
@@ -281,45 +261,6 @@ export function UpdateTaskModal({
           </button>
         </div>
       </Card>
-
-      {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div
-          className="fixed inset-0 bg-black/50 flex items-center justify-center z-60"
-          onClick={() => setShowDeleteConfirm(false)}
-        >
-          <Card
-            className="p-6 max-w-md w-full mx-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold mb-2">Delete Task?</h3>
-            <p className="text-sm text-muted-foreground mb-6">
-              Are you sure you want to delete "{task.title}"? This action cannot
-              be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setShowDeleteConfirm(false);
-                }}
-                className="px-4 py-2 text-sm border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleDelete();
-                }}
-                className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors font-medium cursor-pointer"
-              >
-                Delete
-              </button>
-            </div>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }

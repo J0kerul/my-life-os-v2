@@ -4,6 +4,7 @@ import { X, Edit, Trash2 } from "lucide-react";
 import { DOMAIN_COLORS, DOMAIN_ICONS } from "@/constants";
 import type { Task } from "@/types";
 import { Briefcase } from "lucide-react";
+import { useState } from "react";
 
 type TaskDetailModalProps = {
   isOpen: boolean;
@@ -38,6 +39,8 @@ export function TaskDetailModal({
   onEdit,
   onDelete,
 }: TaskDetailModalProps) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   if (!isOpen || !task) return null;
 
   const domainColor = DOMAIN_COLORS[task.domain] || "#6B7280";
@@ -45,128 +48,178 @@ export function TaskDetailModal({
     DOMAIN_ICONS[task.domain as keyof typeof DOMAIN_ICONS] || Briefcase;
   const priorityColor = getPriorityColor(task.priority);
 
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    onDelete();
+    setShowDeleteConfirm(false);
+  };
+
   return (
-    <div
-      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
-      onClick={onClose}
-    >
-      <Card
-        className="p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
+    <>
+      <div
+        className="fixed inset-0 bg-black/50 flex items-center justify-center z-50"
+        onClick={onClose}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold">Task Details</h2>
-          <div className="flex items-center gap-2">
-            {/* Edit Button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit();
-              }}
-              className="p-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
-              title="Edit task"
-            >
-              <Edit className="w-5 h-5" />
-            </button>
+        <Card
+          className="p-6 max-w-2xl w-full mx-4 max-h-[80vh] overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Task Details</h2>
+            <div className="flex items-center gap-2">
+              {/* Edit Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit();
+                }}
+                className="p-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
+                title="Edit task"
+              >
+                <Edit className="w-5 h-5" />
+              </button>
 
-            {/* Delete Button */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              className="p-2 hover:bg-destructive/10 text-destructive rounded-md transition-colors cursor-pointer"
-              title="Delete task"
-            >
-              <Trash2 className="w-5 h-5" />
-            </button>
+              {/* Delete Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDeleteClick();
+                }}
+                className="p-2 hover:bg-destructive/10 text-destructive rounded-md transition-colors cursor-pointer"
+                title="Delete task"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
 
-            {/* Close Button */}
-            <button
-              onClick={onClose}
-              className="p-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
-            >
-              <X className="w-5 h-5" />
-            </button>
+              {/* Close Button */}
+              <button
+                onClick={onClose}
+                className="p-2 hover:bg-muted rounded-md transition-colors cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Title and Deadline Row */}
-        <div className="flex items-start justify-between mb-6 gap-4">
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold">{task.title}</h2>
+          {/* Title and Deadline Row */}
+          <div className="flex items-start justify-between mb-6 gap-4">
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold">{task.title}</h2>
+            </div>
+            {task.deadline && !task.isBacklog && (
+              <div className="text-right shrink-0">
+                <p className="text-sm text-muted-foreground mb-1">Deadline</p>
+                <p className="text-lg font-semibold">
+                  {formatDateGerman(task.deadline)}
+                </p>
+              </div>
+            )}
           </div>
-          {task.deadline && !task.isBacklog && (
-            <div className="text-right shrink-0">
-              <p className="text-sm text-muted-foreground mb-1">Deadline</p>
-              <p className="text-lg font-semibold">
-                {formatDateGerman(task.deadline)}
+
+          {/* Domain and Priority Row */}
+          <div className="flex items-center justify-between mb-6 gap-4">
+            <div>
+              <Badge
+                variant="outline"
+                className="text-sm capitalize gap-1.5"
+                style={{
+                  borderColor: domainColor,
+                  color: domainColor,
+                }}
+              >
+                <DomainIcon className="w-4 h-4" />
+                {task.domain}
+              </Badge>
+            </div>
+            <div>
+              <Badge
+                variant="outline"
+                className="text-sm capitalize font-semibold"
+                style={{
+                  borderColor: priorityColor,
+                  color: priorityColor,
+                }}
+              >
+                {task.priority}
+              </Badge>
+            </div>
+          </div>
+
+          {/* Additional Badges */}
+          {(task.isBacklog || task.completed) && (
+            <div className="flex items-center gap-2 mb-6">
+              {task.isBacklog && (
+                <Badge variant="outline" className="text-sm">
+                  Backlog
+                </Badge>
+              )}
+              {task.completed && (
+                <Badge
+                  variant="outline"
+                  className="text-sm bg-green-500/10 text-green-500 border-green-500"
+                >
+                  Completed
+                </Badge>
+              )}
+            </div>
+          )}
+
+          {/* Description */}
+          {task.description && (
+            <div>
+              <p className="text-sm font-medium text-muted-foreground mb-2">
+                Description
+              </p>
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">
+                {task.description}
               </p>
             </div>
           )}
-        </div>
+        </Card>
+      </div>
 
-        {/* Domain and Priority Row */}
-        <div className="flex items-center justify-between mb-6 gap-4">
-          <div>
-            <Badge
-              variant="outline"
-              className="text-sm capitalize gap-1.5"
-              style={{
-                borderColor: domainColor,
-                color: domainColor,
-              }}
-            >
-              <DomainIcon className="w-4 h-4" />
-              {task.domain}
-            </Badge>
-          </div>
-          <div>
-            <Badge
-              variant="outline"
-              className="text-sm capitalize font-semibold"
-              style={{
-                borderColor: priorityColor,
-                color: priorityColor,
-              }}
-            >
-              {task.priority}
-            </Badge>
-          </div>
-        </div>
-
-        {/* Additional Badges */}
-        {(task.isBacklog || task.completed) && (
-          <div className="flex items-center gap-2 mb-6">
-            {task.isBacklog && (
-              <Badge variant="outline" className="text-sm">
-                Backlog
-              </Badge>
-            )}
-            {task.completed && (
-              <Badge
-                variant="outline"
-                className="text-sm bg-green-500/10 text-green-500 border-green-500"
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-60"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <Card
+            className="p-6 max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-2">Delete Task?</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Are you sure you want to delete "{task.title}"? This action cannot
+              be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeleteConfirm(false);
+                }}
+                className="px-4 py-2 text-sm border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
               >
-                Completed
-              </Badge>
-            )}
-          </div>
-        )}
-
-        {/* Description */}
-        {task.description && (
-          <div>
-            <p className="text-sm font-medium text-muted-foreground mb-2">
-              Description
-            </p>
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">
-              {task.description}
-            </p>
-          </div>
-        )}
-      </Card>
-    </div>
+                Cancel
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  confirmDelete();
+                }}
+                className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors font-medium cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
+    </>
   );
 }

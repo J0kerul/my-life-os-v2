@@ -6,6 +6,7 @@ import type { Task } from "@/types";
 import { Briefcase } from "lucide-react";
 import { useState } from "react";
 import { TaskEditView } from "./TaskEditView";
+import { taskService } from "@/services/taskService";
 
 type TaskDetailViewProps = {
   task: Task | null;
@@ -58,9 +59,15 @@ export function TaskDetailView({
           onTaskUpdated(updatedTask);
           setIsEditing(false);
         }}
-        onDelete={(taskId: string) => {
-          onTaskDeleted(taskId);
-          setIsEditing(false);
+        onDelete={async (taskId: string) => {
+          try {
+            await taskService.deleteTask(taskId);
+            onTaskDeleted(taskId);
+            setIsEditing(false);
+          } catch (err) {
+            console.error("Error deleting task:", err);
+            alert("Failed to delete task");
+          }
         }}
       />
     );
@@ -75,9 +82,16 @@ export function TaskDetailView({
     setShowDeleteConfirm(true);
   };
 
-  const confirmDelete = () => {
-    onTaskDeleted(task.id);
-    setShowDeleteConfirm(false);
+  const confirmDelete = async () => {
+    try {
+      await taskService.deleteTask(task.id);
+      onTaskDeleted(task.id);
+      setShowDeleteConfirm(false);
+    } catch (err) {
+      console.error("Error deleting task:", err);
+      alert("Failed to delete task");
+      setShowDeleteConfirm(false);
+    }
   };
 
   return (
