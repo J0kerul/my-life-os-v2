@@ -22,7 +22,7 @@ I was always a big fan of LifeOS systems. As they severy help organizing my life
 - **Quick Add**: Create tasks directly from widgets
 - **Task Detail Modal**: View and edit tasks from dashboard
 
-### Task Management Module
+### Task Manager
 - **Dual-list system**: Deadline tasks & Backlog tasks
 - **11 Domain categories**: Work, University, Personal, Coding, Health, Finance, Social, Home, Study, Travel, Administration
 - **Priority system**: High, Medium, Low with visual indicators
