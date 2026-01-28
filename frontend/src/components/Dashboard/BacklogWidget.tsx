@@ -8,6 +8,7 @@ import type { Task } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { CreateTaskModal } from "../TaskManger/CreateTaskModal";
 import { UpdateTaskModal } from "../TaskManger/UpdateTaskModal";
+import { TaskDetailModal } from "../TaskManger/TaskDetailModal";
 import { BacklogIcon } from "../icons/BacklogIcon";
 
 const getPriorityStyle = (priority: "low" | "medium" | "high") => {
@@ -33,6 +34,7 @@ export function BacklogWidget({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const navigate = useNavigate();
@@ -70,7 +72,10 @@ export function BacklogWidget({
 
   const handleUpdateTask = async (taskId: string, updates: any) => {
     try {
-      await taskService.updateTask(taskId, updates);
+      const updatedTask = await taskService.updateTask(taskId, updates);
+      setShowUpdateModal(false);
+      setSelectedTask(updatedTask);
+      setShowDetailModal(true);
       loadBacklogTasks();
       onRefresh();
     } catch (err) {
@@ -92,7 +97,20 @@ export function BacklogWidget({
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
+    setShowDetailModal(true);
+  };
+
+  const handleEdit = () => {
+    setShowDetailModal(false);
     setShowUpdateModal(true);
+  };
+
+  const handleDelete = () => {
+    setShowDetailModal(false);
+    if (selectedTask) {
+      handleDeleteTask(selectedTask.id);
+      setSelectedTask(null);
+    }
   };
 
   return (
@@ -186,13 +204,25 @@ export function BacklogWidget({
         defaultIsBacklog={true}
       />
 
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        isOpen={showDetailModal}
+        task={selectedTask}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedTask(null);
+        }}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+
       {/* Update Task Modal */}
       <UpdateTaskModal
         isOpen={showUpdateModal}
         task={selectedTask}
         onClose={() => {
           setShowUpdateModal(false);
-          setSelectedTask(null);
+          setShowDetailModal(true);
         }}
         onUpdate={handleUpdateTask}
         onDelete={handleDeleteTask}

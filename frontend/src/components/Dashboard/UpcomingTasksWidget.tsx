@@ -8,6 +8,7 @@ import type { Task } from "@/types";
 import { useNavigate } from "react-router-dom";
 import { CreateTaskModal } from "../TaskManger/CreateTaskModal";
 import { UpdateTaskModal } from "../TaskManger/UpdateTaskModal";
+import { TaskDetailModal } from "../TaskManger/TaskDetailModal";
 import { CalendarWeekIcon } from "../icons/CalendarWeekIcon";
 
 const getPriorityStyle = (priority: "low" | "medium" | "high") => {
@@ -63,6 +64,7 @@ export function UpcomingTasksWidget({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const navigate = useNavigate();
@@ -85,7 +87,7 @@ export function UpcomingTasksWidget({
           if (!task.deadline || task.completed || task.isBacklog) return false;
           const taskDate = new Date(task.deadline);
           taskDate.setHours(0, 0, 0, 0);
-          return taskDate >= today && taskDate <= sevenDaysFromNow;
+          return taskDate <= sevenDaysFromNow;
         })
         .sort((a, b) => {
           if (!a.deadline || !b.deadline) return 0;
@@ -115,7 +117,10 @@ export function UpcomingTasksWidget({
 
   const handleUpdateTask = async (taskId: string, updates: any) => {
     try {
-      await taskService.updateTask(taskId, updates);
+      const updatedTask = await taskService.updateTask(taskId, updates);
+      setShowUpdateModal(false);
+      setSelectedTask(updatedTask);
+      setShowDetailModal(true);
       loadUpcomingTasks();
       onRefresh();
     } catch (err) {
@@ -137,7 +142,20 @@ export function UpcomingTasksWidget({
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
+    setShowDetailModal(true);
+  };
+
+  const handleEdit = () => {
+    setShowDetailModal(false);
     setShowUpdateModal(true);
+  };
+
+  const handleDelete = () => {
+    setShowDetailModal(false);
+    if (selectedTask) {
+      handleDeleteTask(selectedTask.id);
+      setSelectedTask(null);
+    }
   };
 
   return (
@@ -246,13 +264,25 @@ export function UpcomingTasksWidget({
         defaultIsBacklog={false}
       />
 
+      {/* Task Detail Modal */}
+      <TaskDetailModal
+        isOpen={showDetailModal}
+        task={selectedTask}
+        onClose={() => {
+          setShowDetailModal(false);
+          setSelectedTask(null);
+        }}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+      />
+
       {/* Update Task Modal */}
       <UpdateTaskModal
         isOpen={showUpdateModal}
         task={selectedTask}
         onClose={() => {
           setShowUpdateModal(false);
-          setSelectedTask(null);
+          setShowDetailModal(true);
         }}
         onUpdate={handleUpdateTask}
         onDelete={handleDeleteTask}
