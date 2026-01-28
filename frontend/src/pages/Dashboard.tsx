@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { Sidebar } from "../components/Sidebar";
 import { DashboardHeader } from "../components/Dashboard/DashboardHeader";
+import { BacklogWidget } from "../components/Dashboard/BacklogWidget";
+import { UpcomingTasksWidget } from "../components/Dashboard/UpcomingTasksWidget";
 
 function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  const handleRefresh = () => {
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <>
@@ -17,15 +24,18 @@ function Dashboard() {
 
         {/* Dashboard Content */}
         <div className="px-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="p-6 border border-border rounded-lg">
-              <h2 className="text-xl font-semibold mb-2">
-                Welcome to MyLifeOS 2.0
-              </h2>
-              <p className="text-muted-foreground">
-                Your personal life management system is ready!
-              </p>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Upcoming Tasks Widget - JETZT LINKS */}
+            <UpcomingTasksWidget
+              refreshTrigger={refreshTrigger}
+              onRefresh={handleRefresh}
+            />
+
+            {/* Backlog Widget - JETZT RECHTS */}
+            <BacklogWidget
+              refreshTrigger={refreshTrigger}
+              onRefresh={handleRefresh}
+            />
           </div>
         </div>
       </div>
