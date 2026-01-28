@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import { X, Save, CalendarIcon } from "lucide-react";
+import { X, Save, CalendarIcon, Trash2 } from "lucide-react";
 import { ALL_DOMAINS } from "@/constants";
-import type { CreateTaskRequest } from "@/services/taskService";
+import type { Task } from "@/types";
 import {
   Select,
   SelectContent,
@@ -19,11 +19,12 @@ import {
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
-type CreateTaskModalProps = {
+type UpdateTaskModalProps = {
   isOpen: boolean;
+  task: Task | null;
   onClose: () => void;
-  onCreateTask: (task: CreateTaskRequest) => void;
-  defaultIsBacklog?: boolean;
+  onUpdate: (taskId: string, updates: any) => void;
+  onDelete: (taskId: string) => void;
 };
 
 const PRIORITIES = ["low", "medium", "high"] as const;
@@ -44,48 +45,57 @@ const dateToString = (date: Date | undefined): string => {
   return `${year}-${month}-${day}`;
 };
 
-export function CreateTaskModal({
+export function UpdateTaskModal({
   isOpen,
+  task,
   onClose,
-  onCreateTask,
-  defaultIsBacklog = false,
-}: CreateTaskModalProps) {
+  onUpdate,
+  onDelete,
+}: UpdateTaskModalProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [domain, setDomain] = useState("personal");
   const [priority, setPriority] = useState<"low" | "medium" | "high">("medium");
-  const [isBacklog, setIsBacklog] = useState(defaultIsBacklog);
+  const [isBacklog, setIsBacklog] = useState(false);
   const [deadline, setDeadline] = useState("");
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Sync isBacklog with defaultIsBacklog prop
+  // Load task data when task changes
   useEffect(() => {
-    setIsBacklog(defaultIsBacklog);
-  }, [defaultIsBacklog]);
+    if (task) {
+      setTitle(task.title);
+      setDescription(task.description || "");
+      setDomain(task.domain);
+      setPriority(task.priority);
+      setIsBacklog(task.isBacklog);
+      setDeadline(task.deadline || "");
+    }
+  }, [task]);
 
   const handleSubmit = () => {
-    if (!title.trim()) return;
+    if (!task || !title.trim()) return;
     if (!isBacklog && !deadline) return;
 
-    onCreateTask({
+    onUpdate(task.id, {
       title,
       description: description || undefined,
-      completed: false,
-      priority,
       domain,
+      priority,
       isBacklog,
-      deadline: isBacklog ? undefined : deadline,
+      deadline: isBacklog ? null : deadline || undefined,
     });
 
-    // Reset form
-    setTitle("");
-    setDescription("");
-    setDomain("personal");
-    setPriority("medium");
-    setIsBacklog(defaultIsBacklog);
-    setDeadline("");
+    onClose();
   };
 
-  if (!isOpen) return null;
+  const handleDelete = () => {
+    if (!task) return;
+    onDelete(task.id);
+    setShowDeleteConfirm(false);
+    onClose();
+  };
+
+  if (!isOpen || !task) return null;
 
   const selectedDate = stringToDate(deadline);
 
@@ -100,16 +110,28 @@ export function CreateTaskModal({
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-1">
-          <h3 className="text-lg font-semibold">Create New Task</h3>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose();
-            }}
-            className="p-1 hover:bg-muted rounded-md transition-colors cursor-pointer"
-          >
-            <X className="w-5 h-5" />
-          </button>
+          <h3 className="text-lg font-semibold">Edit Task</h3>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
+              className="p-1 hover:bg-destructive/10 text-destructive rounded-md transition-colors cursor-pointer"
+              title="Delete task"
+            >
+              <Trash2 className="w-5 h-5" />
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onClose();
+              }}
+              className="p-1 hover:bg-muted rounded-md transition-colors cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
         </div>
 
         {/* Form */}
@@ -123,7 +145,6 @@ export function CreateTaskModal({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Task title..."
               className="w-full px-3 py-2 bg-background border border-border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-              autoFocus
               onClick={(e) => e.stopPropagation()}
             />
           </div>
@@ -256,10 +277,49 @@ export function CreateTaskModal({
             className="flex items-center gap-2 px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:opacity-90 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            Create Task
+            Save Changes
           </button>
         </div>
       </Card>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-60"
+          onClick={() => setShowDeleteConfirm(false)}
+        >
+          <Card
+            className="p-6 max-w-md w-full mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-2">Delete Task?</h3>
+            <p className="text-sm text-muted-foreground mb-6">
+              Are you sure you want to delete "{task.title}"? This action cannot
+              be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowDeleteConfirm(false);
+                }}
+                className="px-4 py-2 text-sm border border-border rounded-md hover:bg-muted transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete();
+                }}
+                className="px-4 py-2 text-sm bg-destructive text-destructive-foreground rounded-md hover:bg-destructive/90 transition-colors font-medium cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
