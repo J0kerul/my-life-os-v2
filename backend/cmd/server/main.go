@@ -29,7 +29,7 @@ func getAllowedOrigins(env string) []string {
 	if env == "production" {
 		// Ersetze mit deiner echten Frontend URL von Render:
 		origins = append(origins,
-			"https://jokers-hub-frontene.onrender.com",
+			"https://jokers-hub-frontend.onrender.com",
 			// Oder nutze Wildcard für alle Render URLs (weniger sicher):
 			// "https://*.onrender.com",
 		)
