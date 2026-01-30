@@ -18,6 +18,26 @@ import (
 	"github.com/J0kerul/jokers-hub/internal/task"
 )
 
+func getAllowedOrigins(env string) []string {
+	// Base origins für Development
+	origins := []string{
+		"http://localhost:5173",
+		"http://localhost:3000",
+	}
+
+	// Production origins hinzufügen
+	if env == "production" {
+		// Ersetze mit deiner echten Frontend URL von Render:
+		origins = append(origins,
+			"https://mylifeos-frontend.onrender.com",
+			// Oder nutze Wildcard für alle Render URLs (weniger sicher):
+			// "https://*.onrender.com",
+		)
+	}
+
+	return origins
+}
+
 func main() {
 	// 1. Load Configuration
 	dbURL := getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/jokershub?sslmode=disable")
@@ -52,7 +72,7 @@ func main() {
 
 	// CORS Configuration
 	r.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "http://localhost:3000"},
+		AllowedOrigins:   getAllowedOrigins(env),
 		AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		ExposedHeaders:   []string{"Link"},
