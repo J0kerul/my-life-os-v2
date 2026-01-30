@@ -5,34 +5,28 @@ WORKDIR /app
 
 # Copy package files
 COPY package*.json ./
-
-# Install dependencies (including devDependencies for build)
 RUN npm ci
 
 # Copy source code
 COPY . .
 
-# Build the application
+# !!! WICHTIG: ARG für Build-Zeit ENV Variable !!!
+ARG VITE_API_URL
+ENV VITE_API_URL=$VITE_API_URL
+
+# Build the application (jetzt mit ENV Variable!)
 RUN npm run build
 
 # Production stage
 FROM node:20-alpine
 
 WORKDIR /app
-
-# Install serve globally
 RUN npm install -g serve
 
 # Copy built assets from builder
 COPY --from=builder /app/dist ./dist
 
-# Expose port (Render uses PORT env var)
 EXPOSE 3000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3000 || exit 1
-
 # Serve the application
-# Use PORT env var if available, otherwise default to 3000
 CMD sh -c "serve -s dist -l ${PORT:-3000}"
