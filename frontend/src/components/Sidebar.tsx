@@ -1,4 +1,11 @@
-import { X, ChevronDown, ChevronRight, Home, CheckSquare } from "lucide-react";
+import {
+  X,
+  ChevronDown,
+  ChevronRight,
+  Home,
+  CheckSquare,
+  Code2,
+} from "lucide-react";
 import { JokerIcon } from "./icons/JokerIcon";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -27,7 +34,10 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
     },
     {
       name: "Productivity",
-      items: [{ name: "Task Manager", path: "/tasks", icon: CheckSquare }],
+      items: [
+        { name: "Task Manager", path: "/tasks", icon: CheckSquare },
+        { name: "Project Manager", path: "/projects", icon: Code2 },
+      ],
     },
   ];
 

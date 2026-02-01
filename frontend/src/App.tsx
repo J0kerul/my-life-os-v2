@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import TaskManager from "./pages/TaskManager";
 import Dashboard from "./pages/Dashboard";
+import ProjectManager from "./pages/ProjectManager";
 
 function App() {
   useEffect(() => {
@@ -15,6 +16,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/tasks" element={<TaskManager />} />
+          <Route path="/projects" element={<ProjectManager />} />
         </Routes>
       </BrowserRouter>
     </div>
