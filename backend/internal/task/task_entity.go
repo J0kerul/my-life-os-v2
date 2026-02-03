@@ -37,6 +37,7 @@ type Task struct {
 	Priority    Priority   `json:"priority" db:"priority"`
 	Domain      Domain     `json:"domain" db:"domain"`
 	ProjectId   *uuid.UUID `json:"project_id,omitempty" db:"project_id"`
+	PhaseId     *uuid.UUID `json:"phase_id,omitempty" db:"phase_id"`
 	UniModuleId *uuid.UUID `json:"uni_module_id,omitempty" db:"uni_module_id"`
 	Deadline    *time.Time `json:"deadline,omitempty" db:"deadline"`
 	IsBacklog   bool       `json:"is_backlog" db:"is_backlog"`
@@ -45,9 +46,9 @@ type Task struct {
 	UpdatedAt   time.Time  `json:"updated_at" db:"updated_at"`
 }
 
-type TaskFilter struct {
+/* type TaskFilter struct {
 	Priority  *Priority
 	Domain    *Domain
 	IsBacklog *bool
 	Completed *bool
-}
+} */
