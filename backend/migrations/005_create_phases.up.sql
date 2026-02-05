@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS phases (
     status phase_status_enum NOT NULL,
     position INT NOT NULL,
     created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 )

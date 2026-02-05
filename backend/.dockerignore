@@ -6,4 +6,3 @@ README.md
 tmp/
 *.log
 node_modules
-.air.toml

@@ -59,27 +59,27 @@ type TechStackItem = {
 
 const TECH_STACK_ITEMS: TechStackItem[] = [
   // Frontend
-  { tech_stack_item_id: "1", name: "React", color: "#61DAFB" },
-  { tech_stack_item_id: "2", name: "TypeScript", color: "#3178C6" },
-  { tech_stack_item_id: "3", name: "Next.js", color: "#000000" },
-  { tech_stack_item_id: "4", name: "Tailwind CSS", color: "#06B6D4" },
-  { tech_stack_item_id: "5", name: "Vite", color: "#646CFF" },
-
+  { id: "550e8400-e29b-41d4-a716-446655440001", name: "React", color: "#61DAFB", position: 1 },
+  { id: "550e8400-e29b-41d4-a716-446655440002", name: "TypeScript", color: "#3178C6", position: 2 },
+  { id: "550e8400-e29b-41d4-a716-446655440003", name: "Next.js", color: "#000000", position: 3 },
+  { id: "550e8400-e29b-41d4-a716-446655440004", name: "Tailwind CSS", color: "#06B6D4", position: 4 },
+  { id: "550e8400-e29b-41d4-a716-446655440005", name: "Vite", color: "#646CFF", position: 5 },
+  
   // Backend
-  { tech_stack_item_id: "6", name: "Go", color: "#00ADD8" },
-  { tech_stack_item_id: "7", name: "Node.js", color: "#339933" },
-  { tech_stack_item_id: "8", name: "Python", color: "#3776AB" },
-
+  { id: "550e8400-e29b-41d4-a716-446655440006", name: "Go", color: "#00ADD8", position: 6 },
+  { id: "550e8400-e29b-41d4-a716-446655440007", name: "Node.js", color: "#339933", position: 7 },
+  { id: "550e8400-e29b-41d4-a716-446655440008", name: "Python", color: "#3776AB", position: 8 },
+  
   // Database
-  { tech_stack_item_id: "9", name: "PostgreSQL", color: "#4169E1" },
-  { tech_stack_item_id: "10", name: "MongoDB", color: "#47A248" },
-  { tech_stack_item_id: "11", name: "Redis", color: "#DC382D" },
-
+  { id: "550e8400-e29b-41d4-a716-446655440009", name: "PostgreSQL", color: "#4169E1", position: 9 },
+  { id: "550e8400-e29b-41d4-a716-446655440010", name: "MongoDB", color: "#47A248", position: 10 },
+  { id: "550e8400-e29b-41d4-a716-446655440011", name: "Redis", color: "#DC382D", position: 11 },
+  
   // DevOps
-  { tech_stack_item_id: "12", name: "Docker", color: "#2496ED" },
-  { tech_stack_item_id: "13", name: "Kubernetes", color: "#326CE5" },
-  { tech_stack_item_id: "14", name: "GitHub Actions", color: "#2088FF" },
-];
+  { id: "550e8400-e29b-41d4-a716-446655440012", name: "Docker", color: "#2496ED", position: 12 },
+  { id: "550e8400-e29b-41d4-a716-446655440013", name: "Kubernetes", color: "#326CE5", position: 13 },
+  { id: "550e8400-e29b-41d4-a716-446655440014", name: "GitHub Actions", color: "#2088FF", position: 14 },
+].sort((a, b) => a.position - b.position);
 
 export default function ProjectManager() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
